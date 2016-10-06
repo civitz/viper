@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.github.civitz</groupId>
+	<artifactId>cdi-configure</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>cdi-configure</name>
+	<url>https://civitz.github.io</url>
+
+	<modules>
+		<module>generator</module>
+		<module>library</module>
+		<module>generatortests</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<junit.version>4.12</junit.version>
+		<guava.version>19.0</guava.version>
+		<immutables.version>2.3.3</immutables.version>
+		<assertj.version>3.5.2</assertj.version>
+		<easymock.version>3.4</easymock.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>${assertj.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.immutables</groupId>
+				<artifactId>value</artifactId>
+				<version>${immutables.version}</version>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.easymock</groupId>
+				<artifactId>easymock</artifactId>
+				<version>${easymock.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+	<build>
+		<defaultGoal>clean test</defaultGoal>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.5.1</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<useIncrementalCompilation>false</useIncrementalCompilation>
+					</configuration>
+				</plugin>
+				<plugin>
+					<executions>
+						<execution>
+							<id>failsafe-integration-tests</id>
+							<phase>integration-test</phase>
+							<goals>
+								<goal>integration-test</goal>
+							</goals>
+						</execution>
+					</executions>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.19.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
+
