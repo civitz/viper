@@ -1,0 +1,10 @@
+package ${packageName};
+
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
+
+@Qualifier
+public @interface Configuration {
+	@Nonbinding
+	${enumClass} value() default ${enumClass}.NULL;
+}

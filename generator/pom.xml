@@ -30,6 +30,12 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.7</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
 			<scope>test</scope>
@@ -40,19 +46,19 @@
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-			
-			
+
+
 			<plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-<!--                 <version>2.5.1</version> -->
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <!-- Disable annotation processing for ourselves.-->
-                    <compilerArgument>-proc:none</compilerArgument>
-                </configuration>
-            </plugin>
-			
+				<artifactId>maven-compiler-plugin</artifactId>
+				<!-- <version>2.5.1</version> -->
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<!-- Disable annotation processing for ourselves. -->
+					<compilerArgument>-proc:none</compilerArgument>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>

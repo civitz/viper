@@ -1,0 +1,50 @@
+package ${packageName};
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
+
+public class ConfigurationBean {
+
+	private static final String PROPERTIES_PATH = "${propertiesPath}";
+
+	Properties properties = new Properties();
+
+	@PostConstruct
+	void init() {
+
+		Properties availableProperties = getAvailableProperties(PROPERTIES_PATH);
+
+		properties.clear();
+		properties.putAll(availableProperties);
+	}
+
+	@Produces
+	@Configuration
+	private String getStringProperty(InjectionPoint ip) {
+		Configuration annotation = ip.getMember().getDeclaringClass().getAnnotation(Configuration.class);
+		${enumClass} keyEnum = annotation.value();
+		String keyString = keyEnum.name().toLowerCase();
+		return properties.getProperty(keyString);
+	}
+
+	private Properties getAvailableProperties(String propertiesPath) {
+		File file = new File(propertiesPath);
+		if (!file.exists() || !file.canRead() || !file.isFile()) {
+			throw new IllegalArgumentException("Unable to read file " + propertiesPath);
+		}
+		Properties properties = new Properties();
+		try {
+			properties.load(new FileInputStream(file));
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Unable to read file " + propertiesPath, e);
+		}
+		return properties;
+	}
+
+}
