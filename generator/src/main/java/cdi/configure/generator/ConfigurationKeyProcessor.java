@@ -76,10 +76,19 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					String className = classElement.getSimpleName().toString();
 					String packageName = packageElement.getQualifiedName().toString();
 
-					Map<String, String> props = ImmutableMap.of(
+					String validator = 	classElement.getEnclosedElements()
+						.stream()
+						.filter(x -> x.getKind()==ElementKind.METHOD)
+						.filter(x-> x.getAnnotation(ConfigurationKey.ConfigValidator.class)!=null)
+						.map(x->x.getSimpleName() + "()")
+						.findFirst()
+						.orElse(null);
+					
+					Map<String, Object> props = ImmutableMap.of(
 							"enumClass", className, 
 							"packageName", packageName,
-							"propertiesPath", propertiesPath);
+							"propertiesPath", propertiesPath,
+							"validator", validator==null?Boolean.FALSE:validator);
 
 					Template config = generateTemplateFor("Configuration.vm", props);
 					JavaFileObject configSourceFile = processingEnv.getFiler()
@@ -108,7 +117,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		return true;
 	}
 	
-	Template generateTemplateFor(String templateName, Map<String, String> properties) throws IOException{
+	Template generateTemplateFor(String templateName, Map<String, Object> properties) throws IOException{
 		Properties props = new Properties();
         URL url = this.getClass().getClassLoader().getResource("velocity.properties");
         props.load(url.openStream());
@@ -120,10 +129,10 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
         return ve.getTemplate(templateName);
 	}
 
-	VelocityContext contextFromProperties(Map<String, String> properties) {
+	VelocityContext contextFromProperties(Map<String, Object> properties) {
 		VelocityContext vc = new VelocityContext();
 
-        for(Entry<String, String> e : properties.entrySet()){
+        for(Entry<String, Object> e : properties.entrySet()){
         vc.put(e.getKey(), e.getValue());	
         }
         

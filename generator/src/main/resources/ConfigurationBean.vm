@@ -74,7 +74,7 @@ public class ConfigurationBean {
 	}
 
 	private static boolean isValid(${enumClass} config, String property) {
-		return config.getValidator().test(property);
+		return config.${validator}.test(property);
 	}
 	
 #end
