@@ -37,6 +37,10 @@ public class ConfigurationBean {
 #end
 		
 		for (${enumClass} config : ${enumClass}.values()) {
+			if(isNullValue(config)){
+				continue;
+			}
+		
 			String key = enumToKeyString(config);
 			String property = availableProperties.getProperty(key);
 			
@@ -61,6 +65,14 @@ public class ConfigurationBean {
 			
 		}
 
+	}
+
+	private boolean isNullValue(${enumClass} config) {
+#if ( $nullValue )
+		return ${enumClass}.${nullValue} == config;
+#else
+		return ${enumClass}.values()[0] == config;
+#end
 	}
 
 	private static String formatMissing(${enumClass} config) {

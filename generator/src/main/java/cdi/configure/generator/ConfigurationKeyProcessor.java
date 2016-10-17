@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
@@ -76,20 +78,22 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					String className = classElement.getSimpleName().toString();
 					String packageName = packageElement.getQualifiedName().toString();
 
-					String validator = 	classElement.getEnclosedElements()
-						.stream()
-						.filter(x -> x.getKind()==ElementKind.METHOD)
-						.filter(x-> x.getAnnotation(ConfigurationKey.ConfigValidator.class)!=null)
-						.map(x->x.getSimpleName() + "()")
-						.findFirst()
-						.orElse(null);
 					
-					Map<String, Object> props = ImmutableMap.of(
-							"enumClass", className, 
-							"packageName", packageName,
-							"propertiesPath", propertiesPath,
-							"validator", validator==null?Boolean.FALSE:validator);
+					Builder<String, Object> builder = ImmutableMap.<String, Object> builder()
+						.put("enumClass", className)
+						.put("packageName", packageName)
+						.put("propertiesPath", propertiesPath);
+					
+					getValidatorMethod(classElement).ifPresent(method -> {
+						builder.put("validator", method);
+					});
+					
+					getKeyNullValue(classElement).ifPresent(keyNull -> {
+						builder.put("nullValue", keyNull);
+					});
 
+					ImmutableMap<String, Object> props = builder.build();
+					
 					Template config = generateTemplateFor("Configuration.vm", props);
 					JavaFileObject configSourceFile = processingEnv.getFiler()
 							.createSourceFile(packageName + ".Configuration", e);
@@ -116,27 +120,44 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 		return true;
 	}
+
+	private Optional<String> getValidatorMethod(TypeElement classElement) {
+		return classElement.getEnclosedElements()
+			.stream()
+			.filter(x -> x.getKind() == ElementKind.METHOD)
+			.filter(x -> x.getAnnotation(ConfigurationKey.ConfigValidator.class) != null)
+			.map(x -> x.getSimpleName().toString() + "()")
+			.findFirst();
+	}
 	
-	Template generateTemplateFor(String templateName, Map<String, Object> properties) throws IOException{
+	private Optional<String> getKeyNullValue(TypeElement classElement) {
+		return classElement.getEnclosedElements()
+				.stream()
+				.filter(x -> x.getKind() == ElementKind.ENUM_CONSTANT)
+				.filter(x -> x.getAnnotation(ConfigurationKey.KeyNullValue.class) != null)
+				.map(x -> x.getSimpleName().toString())
+				.findFirst();
+	}
+	
+	Template generateTemplateFor(String templateName, Map<String, Object> properties) throws IOException {
 		Properties props = new Properties();
-        URL url = this.getClass().getClassLoader().getResource("velocity.properties");
-        props.load(url.openStream());
+		URL url = this.getClass().getClassLoader().getResource("velocity.properties");
+		props.load(url.openStream());
 
-        VelocityEngine ve = new VelocityEngine(props);
-        ve.init();
+		VelocityEngine ve = new VelocityEngine(props);
+		ve.init();
 
-
-        return ve.getTemplate(templateName);
+		return ve.getTemplate(templateName);
 	}
 
 	VelocityContext contextFromProperties(Map<String, Object> properties) {
 		VelocityContext vc = new VelocityContext();
 
-        for(Entry<String, Object> e : properties.entrySet()){
-        vc.put(e.getKey(), e.getValue());	
-        }
-        
-        return vc;
+		for (Entry<String, Object> e : properties.entrySet()) {
+			vc.put(e.getKey(), e.getValue());
+		}
+
+		return vc;
 	}
 
 }
