@@ -6,5 +6,5 @@ import javax.inject.Qualifier;
 @Qualifier
 public @interface Configuration {
 	@Nonbinding
-	${enumClass} value() default ${enumClass}.NULL;
+	${enumClass} value() default ${enumClass}.${nullValue};
 }

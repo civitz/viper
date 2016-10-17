@@ -88,9 +88,8 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						builder.put("validator", method);
 					});
 					
-					getKeyNullValue(classElement).ifPresent(keyNull -> {
-						builder.put("nullValue", keyNull);
-					});
+					String keyNull = getKeyNullValue(classElement).orElseGet(() -> getFirstEnumConstant(classElement));
+					builder.put("nullValue", keyNull);
 
 					ImmutableMap<String, Object> props = builder.build();
 					
@@ -119,6 +118,15 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		}
 
 		return true;
+	}
+
+	private String getFirstEnumConstant(TypeElement classElement) {
+		return classElement.getEnclosedElements()
+			.stream()
+			.filter(x -> x.getKind() == ElementKind.ENUM_CONSTANT)
+			.map(x -> x.getSimpleName().toString())
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Enum with no constants"));
 	}
 
 	private Optional<String> getValidatorMethod(TypeElement classElement) {
