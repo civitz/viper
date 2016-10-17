@@ -1,8 +1,12 @@
 package ${packageName};
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Stream.concat;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -20,8 +24,67 @@ public class ConfigurationBean {
 
 		Properties availableProperties = getAvailableProperties(PROPERTIES_PATH);
 
+		validateProperties(availableProperties);
+
 		properties.clear();
 		properties.putAll(availableProperties);
+	}
+
+	private void validateProperties(Properties availableProperties) {
+		ArrayList<String> missing= new ArrayList<>();
+#if ( $validator ) 
+		ArrayList<String> invalid= new ArrayList<>();
+#end
+		
+		for (${enumClass} config : ${enumClass}.values()) {
+			String key = enumToKeyString(config);
+			String property = availableProperties.getProperty(key);
+			
+			if (isNullOrEmpty(property)) {
+				missing.add(formatMissing(config));
+			}  
+#if ( $validator ) 
+			else if (isValid(config, property)) {
+				invalid.add(formatInvalid(config, property));
+			}
+#end
+			
+#if ( $validator )
+			if (missing.size() > 0 || invalid.size() > 0) {
+				String reasons = concat(missing.stream(), invalid.stream()).collect(joining(", "));
+#else
+			if (missing.size() > 0) {
+				String reasons = missing.stream().collect(joining(", "));
+#end
+				throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
+			}
+			
+		}
+
+	}
+
+	private static String formatMissing(${enumClass} config) {
+		return "Property " + config.name() + " (" + enumToKeyString(config) + ") is missing";
+	}
+	
+#if ( $validator )
+	private String formatInvalid(${enumClass} config, String property) {
+		return "Property " + config.name() + " (" + enumToKeyString(config) + ") is invalid for value \"" + property
+				+ "\"";
+	}
+
+	private static boolean isValid(${enumClass} config, String property) {
+		return config.getValidator().test(property);
+	}
+	
+#end
+
+	private static boolean isNullOrEmpty(String s) {
+		return s == null || s.trim().isEmpty();
+	}
+
+	private static String enumToKeyString(${enumClass} e){
+		return e.name().toLowerCase();
 	}
 
 	@Produces
@@ -29,11 +92,11 @@ public class ConfigurationBean {
 	private String getStringProperty(InjectionPoint ip) {
 		Configuration annotation = ip.getMember().getDeclaringClass().getAnnotation(Configuration.class);
 		${enumClass} keyEnum = annotation.value();
-		String keyString = keyEnum.name().toLowerCase();
+		String keyString = enumToKeyString(keyEnum);
 		return properties.getProperty(keyString);
 	}
 
-	private Properties getAvailableProperties(String propertiesPath) {
+	private static Properties getAvailableProperties(String propertiesPath) {
 		File file = new File(propertiesPath);
 		if (!file.exists() || !file.canRead() || !file.isFile()) {
 			throw new IllegalArgumentException("Unable to read file " + propertiesPath);
