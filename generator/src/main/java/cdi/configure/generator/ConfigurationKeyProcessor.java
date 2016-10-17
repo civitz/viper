@@ -65,31 +65,33 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		for (Element e : elementsAnnotatedWith) {
 			if (e.getKind() == ElementKind.ENUM) {
 				try {
-					
+
 					TypeElement classElement = (TypeElement) e;
-                    PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
+					PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
 
-                    ConfigurationKey annotation = classElement.getAnnotation(ConfigurationKey.class);
-                    String propertiesPath = annotation.propertiesPath()!=null? annotation.propertiesPath():"/opt/yo/mama.properties";
-                    
-                    String className = classElement.getSimpleName().toString();
-                    String packageName = packageElement.getQualifiedName().toString();
+					ConfigurationKey annotation = classElement.getAnnotation(ConfigurationKey.class);
+					String propertiesPath = annotation.propertiesPath() != null ? annotation.propertiesPath()
+							: "/opt/yo/mama.properties";
 
-					
+					String className = classElement.getSimpleName().toString();
+					String packageName = packageElement.getQualifiedName().toString();
+
 					Map<String, String> props = ImmutableMap.of(
-							"enumClass", className,
+							"enumClass", className, 
 							"packageName", packageName,
-							"propertiesPath",propertiesPath);
-					
-					Template config = generateTemplateFor("Configuration.vm", props );
-					JavaFileObject configSourceFile = processingEnv.getFiler().createSourceFile("Configuration", e);
+							"propertiesPath", propertiesPath);
+
+					Template config = generateTemplateFor("Configuration.vm", props);
+					JavaFileObject configSourceFile = processingEnv.getFiler()
+							.createSourceFile(packageName + ".Configuration", e);
 					Writer configWriter = configSourceFile.openWriter();
 					config.merge(contextFromProperties(props), configWriter);
 					configWriter.flush();
 					configWriter.close();
-					
-					JavaFileObject configBeanSourceFile = processingEnv.getFiler().createSourceFile("ConfigurationBean", e);
-					Template configBean = generateTemplateFor("ConfigurationBean.vm", props );
+
+					JavaFileObject configBeanSourceFile = processingEnv.getFiler()
+							.createSourceFile(packageName + ".ConfigurationBean", e);
+					Template configBean = generateTemplateFor("ConfigurationBean.vm", props);
 					Writer configBeanWriter = configBeanSourceFile.openWriter();
 					configBean.merge(contextFromProperties(props), configBeanWriter);
 					configBeanWriter.flush();
