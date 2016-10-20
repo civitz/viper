@@ -48,7 +48,7 @@ public class ConfigurationBean {
 				missing.add(formatMissing(config));
 			}  
 #if ( $validator ) 
-			else if (isValid(config, property)) {
+			else if (!isValid(config, property)) {
 				invalid.add(formatInvalid(config, property));
 			}
 #end
