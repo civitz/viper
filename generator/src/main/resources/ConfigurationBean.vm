@@ -102,7 +102,7 @@ public class ConfigurationBean {
 	@Produces
 	@Configuration
 	private String getStringProperty(InjectionPoint ip) {
-		Configuration annotation = ip.getMember().getDeclaringClass().getAnnotation(Configuration.class);
+		Configuration annotation = ip.getAnnotated().getAnnotation(Configuration.class);
 		${enumClass} keyEnum = annotation.value();
 		String keyString = enumToKeyString(keyEnum);
 		return properties.getProperty(keyString);

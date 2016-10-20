@@ -1,9 +1,13 @@
 package ${packageName};
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
 @Qualifier
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Configuration {
 	@Nonbinding
 	${enumClass} value() default ${enumClass}.${nullValue};
