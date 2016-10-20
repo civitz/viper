@@ -88,6 +88,10 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						builder.put("validator", method);
 					});
 					
+					getKeyStringMethod(classElement).ifPresent(method -> {
+						builder.put("keyString", method);
+					});
+					
 					String keyNull = getKeyNullValue(classElement).orElseGet(() -> getFirstEnumConstant(classElement));
 					builder.put("nullValue", keyNull);
 
@@ -145,6 +149,15 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 				.filter(x -> x.getAnnotation(ConfigurationKey.KeyNullValue.class) != null)
 				.map(x -> x.getSimpleName().toString())
 				.findFirst();
+	}
+	
+	private Optional<String> getKeyStringMethod(TypeElement classElement) {
+		return classElement.getEnclosedElements()
+			.stream()
+			.filter(x -> x.getKind() == ElementKind.METHOD)
+			.filter(x -> x.getAnnotation(ConfigurationKey.KeyString.class) != null)
+			.map(x -> x.getSimpleName().toString() + "()")
+			.findFirst();
 	}
 	
 	Template generateTemplateFor(String templateName, Map<String, Object> properties) throws IOException {

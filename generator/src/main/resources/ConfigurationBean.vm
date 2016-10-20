@@ -95,9 +95,15 @@ public class ConfigurationBean {
 		return s == null || s.trim().isEmpty();
 	}
 
+#if ( $keyString )
+	private static String enumToKeyString(${enumClass} e){
+		return e.${keyString};
+	}
+#else
 	private static String enumToKeyString(${enumClass} e){
 		return e.name().toLowerCase();
 	}
+#end
 
 	@Produces
 	@Configuration

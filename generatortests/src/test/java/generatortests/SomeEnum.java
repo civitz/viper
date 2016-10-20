@@ -15,4 +15,9 @@ public enum SomeEnum {
 	public Predicate<String> getValidator(){
 		return s -> true;
 	}
+	
+	@ConfigurationKey.KeyString
+	public String getKeyString() {
+		return this.name().toLowerCase() + ".config";
+	}
 }
