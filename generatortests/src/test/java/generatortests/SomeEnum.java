@@ -2,21 +2,21 @@ package generatortests;
 
 import java.util.function.Predicate;
 
-import cdi.configure.ConfigurationKey;
+import civitz.viper.CdiConfiguration;
 
-@ConfigurationKey(propertiesPath="/opt/generatortests/config.properties")
+@CdiConfiguration(propertiesPath="/opt/generatortests/config.properties")
 public enum SomeEnum {
-	@ConfigurationKey.KeyNullValue
+	@CdiConfiguration.KeyNullValue
 	NULL,
 	YO,
 	MAMA;
 
-	@ConfigurationKey.ConfigValidator
+	@CdiConfiguration.ConfigValidator
 	public Predicate<String> getValidator(){
 		return s -> true;
 	}
 	
-	@ConfigurationKey.KeyString
+	@CdiConfiguration.KeyString
 	public String getKeyString() {
 		return this.name().toLowerCase() + ".config";
 	}

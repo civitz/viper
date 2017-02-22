@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>io.github.civitz</groupId>
-		<artifactId>cdi-configure</artifactId>
+		<groupId>civitz.viper</groupId>
+		<artifactId>viper</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>generator-tests</artifactId>
@@ -16,12 +16,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.github.civitz</groupId>
+			<groupId>civitz.viper</groupId>
 			<artifactId>library</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.github.civitz</groupId>
+			<groupId>civitz.viper</groupId>
 			<artifactId>generator</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -39,6 +39,10 @@
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
 		    <groupId>javax.enterprise</groupId>

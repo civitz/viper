@@ -1,27 +1,27 @@
-package cdi.configure;
+package civitz.viper;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface ConfigurationKey {
+public @interface CdiConfiguration {
 
 	String propertiesPath();
 
-	@Retention(RetentionPolicy.CLASS)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
 	public static @interface KeyString {
 	}
 
-	@Retention(RetentionPolicy.CLASS)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
 	public static @interface KeyNullValue {
 	}
 	
-	@Retention(RetentionPolicy.CLASS)
+	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
 	public static @interface ConfigValidator {
 	}

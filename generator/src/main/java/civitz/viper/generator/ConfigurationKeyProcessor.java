@@ -1,4 +1,4 @@
-package cdi.configure.generator;
+package civitz.viper.generator;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -28,26 +28,24 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 
-import cdi.configure.ConfigurationKey;
+import civitz.viper.CdiConfiguration;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({ "cdi.configure.ConfigurationKey" })
+@SupportedAnnotationTypes({ "civitz.viper.CdiConfiguration" })
 public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
+		
 		super.init(processingEnv);
 	}
 
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
 		processingEnv.getMessager().printMessage(Kind.NOTE, "called getSupportedAnnotationTypes");
-		return Sets.newHashSet(ConfigurationKey.class.getName());
+		return Sets.newHashSet(CdiConfiguration.class.getName());
 	}
 
 	@Override
@@ -60,9 +58,9 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		// TODO Auto-generated method stub
 		processingEnv.getMessager().printMessage(Kind.NOTE, "called processing");
-		Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith(ConfigurationKey.class);
+		Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith(CdiConfiguration.class);
 		if (elementsAnnotatedWith.size() > 1) {
-			processingEnv.getMessager().printMessage(Kind.ERROR, "more than one element per type ConfigurationKey");
+			processingEnv.getMessager().printMessage(Kind.ERROR, "more than one element per type CdiConfiguration");
 		}
 		for (Element e : elementsAnnotatedWith) {
 			if (e.getKind() == ElementKind.ENUM) {
@@ -71,7 +69,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					TypeElement classElement = (TypeElement) e;
 					PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
 
-					ConfigurationKey annotation = classElement.getAnnotation(ConfigurationKey.class);
+					CdiConfiguration annotation = classElement.getAnnotation(CdiConfiguration.class);
 					String propertiesPath = annotation.propertiesPath() != null ? annotation.propertiesPath()
 							: "/opt/yo/mama.properties";
 
@@ -137,7 +135,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		return classElement.getEnclosedElements()
 			.stream()
 			.filter(x -> x.getKind() == ElementKind.METHOD)
-			.filter(x -> x.getAnnotation(ConfigurationKey.ConfigValidator.class) != null)
+			.filter(x -> x.getAnnotation(CdiConfiguration.ConfigValidator.class) != null)
 			.map(x -> x.getSimpleName().toString() + "()")
 			.findFirst();
 	}
@@ -146,7 +144,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		return classElement.getEnclosedElements()
 				.stream()
 				.filter(x -> x.getKind() == ElementKind.ENUM_CONSTANT)
-				.filter(x -> x.getAnnotation(ConfigurationKey.KeyNullValue.class) != null)
+				.filter(x -> x.getAnnotation(CdiConfiguration.KeyNullValue.class) != null)
 				.map(x -> x.getSimpleName().toString())
 				.findFirst();
 	}
@@ -155,7 +153,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		return classElement.getEnclosedElements()
 			.stream()
 			.filter(x -> x.getKind() == ElementKind.METHOD)
-			.filter(x -> x.getAnnotation(ConfigurationKey.KeyString.class) != null)
+			.filter(x -> x.getAnnotation(CdiConfiguration.KeyString.class) != null)
 			.map(x -> x.getSimpleName().toString() + "()")
 			.findFirst();
 	}
