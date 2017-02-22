@@ -5,11 +5,11 @@ import java.util.function.Predicate;
 import civitz.viper.CdiConfiguration;
 
 @CdiConfiguration(propertiesPath="/opt/generatortests/config.properties")
-public enum SomeEnum {
+public enum CompleteEnum {
 	@CdiConfiguration.KeyNullValue
 	NULL,
-	YO,
-	MAMA;
+	FIRST_PROPERTY,
+	SECOND_PROPERTY;
 
 	@CdiConfiguration.ConfigValidator
 	public Predicate<String> getValidator(){
