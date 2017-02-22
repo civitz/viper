@@ -55,18 +55,18 @@ public class ConfigurationBean {
 				invalid.add(formatInvalid(config, property));
 			}
 #end
+		}
 			
 #if ( $validator )
-			if (missing.size() > 0 || invalid.size() > 0) {
-				String reasons = concat(missing.stream(), invalid.stream()).collect(joining(", "));
+		if (missing.size() > 0 || invalid.size() > 0) {
+			String reasons = concat(missing.stream(), invalid.stream()).collect(joining(", "));
 #else
-			if (missing.size() > 0) {
-				String reasons = missing.stream().collect(joining(", "));
+		if (missing.size() > 0) {
+			String reasons = missing.stream().collect(joining(", "));
 #end
-				throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
-			}
-			
+			throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
 		}
+			
 
 	}
 
