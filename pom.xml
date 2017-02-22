@@ -8,7 +8,18 @@
 	<packaging>pom</packaging>
 
 	<name>viper</name>
-	<url>https://civitz.github.io</url>
+	<url>https://github.com/civitz/viper</url>
+	<description>
+		A generator and a framework for injecting configurations via CDI
+	</description>
+	
+	<developers>
+		<developer>
+			<name>Roberto Piva</name>
+			<email>piva.roberto.88@gmail.com</email>
+			<url>https://civitz.github.io</url>
+		</developer>
+	</developers>
 
 	<modules>
 		<module>generator</module>
