@@ -2,9 +2,12 @@ package generatortests;
 
 import java.util.function.Predicate;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import civitz.viper.CdiConfiguration;
 
 @CdiConfiguration(propertiesPath="/opt/generatortests/config.properties")
+@CdiConfiguration.PassAnnotations(ApplicationScoped.class)
 public enum CompleteEnum {
 	@CdiConfiguration.KeyNullValue
 	NULL,

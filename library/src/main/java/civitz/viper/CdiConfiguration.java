@@ -1,5 +1,6 @@
 package civitz.viper;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,5 +25,11 @@ public @interface CdiConfiguration {
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ ElementType.METHOD })
 	public static @interface ConfigValidator {
+	}
+	
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ ElementType.TYPE })
+	public static @interface PassAnnotations {
+		Class<? extends Annotation>[] value();
 	}
 }

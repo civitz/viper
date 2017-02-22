@@ -13,6 +13,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
+#foreach( $annotation in $passedAnnotations )
+@$annotation
+#end
 public class ConfigurationBean {
 
 	private static final String PROPERTIES_PATH = "${propertiesPath}";
