@@ -78,12 +78,13 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					TypeElement classElement = (TypeElement) e;
 					PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
 
+					String className = classElement.getSimpleName().toString();
+
 					CdiConfiguration annotation = classElement.getAnnotation(CdiConfiguration.class);
 					String propertiesPath = annotation.propertiesPath() != null ? annotation.propertiesPath()
-							: "/opt/yo/mama.properties";
+							: "/opt/" + className + "/mama.properties";
 
 					List<String> passedAnnotations = getPassedAnnotations(classElement);
-					String className = classElement.getSimpleName().toString();
 					String packageName = packageElement.getQualifiedName().toString();
 
 					
