@@ -1,4 +1,4 @@
-package generatortests;
+package viper.generatortests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package generatortests;
+package viper.generatortests;
 
 import java.util.function.Predicate;
 
@@ -6,7 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 import com.google.common.primitives.Ints;
 
-import civitz.viper.CdiConfiguration;
+import viper.CdiConfiguration;
 
 /*
  * You can specify one or more annotations for the Configuration Bean.

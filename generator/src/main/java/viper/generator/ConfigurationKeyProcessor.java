@@ -1,4 +1,4 @@
-package civitz.viper.generator;
+package viper.generator;
 
 import static java.util.stream.Collectors.toList;
 
@@ -35,14 +35,15 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+
+import viper.CdiConfiguration;
+import viper.CdiConfiguration.PassAnnotations;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import civitz.viper.CdiConfiguration;
-import civitz.viper.CdiConfiguration.PassAnnotations;
-
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({ "civitz.viper.CdiConfiguration" })
+@SupportedAnnotationTypes({ "viper.CdiConfiguration" })
 public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 	@Override

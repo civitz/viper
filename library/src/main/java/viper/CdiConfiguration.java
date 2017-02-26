@@ -1,4 +1,4 @@
-package civitz.viper;
+package viper;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
