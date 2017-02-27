@@ -37,13 +37,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 import viper.CdiConfiguration;
+import viper.PropertyFileResolver;
 import viper.CdiConfiguration.PassAnnotations;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({ "viper.CdiConfiguration" })
+@SupportedAnnotationTypes({ "viper.CdiConfiguration", "viper.PropertyFileResolver" })
 public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 	@Override
@@ -55,7 +56,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
 		processingEnv.getMessager().printMessage(Kind.NOTE, "called getSupportedAnnotationTypes");
-		return Sets.newHashSet(CdiConfiguration.class.getName());
+		return Sets.newHashSet(CdiConfiguration.class.getName(), PropertyFileResolver.class.getName());
 	}
 
 	@Override
@@ -79,11 +80,8 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					TypeElement classElement = (TypeElement) e;
 					PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
 
+					// properties for cdi configuration 
 					String className = classElement.getSimpleName().toString();
-
-					CdiConfiguration annotation = classElement.getAnnotation(CdiConfiguration.class);
-					String propertiesPath = annotation.propertiesPath() != null ? annotation.propertiesPath()
-							: "/opt/" + className + "/mama.properties";
 
 					List<String> passedAnnotations = getPassedAnnotations(classElement);
 					String packageName = packageElement.getQualifiedName().toString();
@@ -92,21 +90,28 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					Builder<String, Object> builder = ImmutableMap.<String, Object> builder()
 						.put("enumClass", className)
 						.put("packageName", packageName)
-						.put("propertiesPath", propertiesPath)
+//						.put("propertiesPath", propertiesPath)
 						.put("passedAnnotations", passedAnnotations);
 					
 					getValidatorMethod(classElement).ifPresent(method -> {
 						builder.put("validator", method);
 					});
 					
+					Optional<String> propertyFileResolver = Optional.ofNullable(classElement.getAnnotation(PropertyFileResolver.class))
+							.map(PropertyFileResolver::propertiesPath);
+					propertyFileResolver.ifPresent(path -> {
+								builder.put("propertiesPath", path);
+							});
 					getKeyStringMethod(classElement).ifPresent(method -> {
 						builder.put("keyString", method);
 					});
-					
+
 					String keyNull = getKeyNullValue(classElement).orElseGet(() -> getFirstEnumConstant(classElement));
 					builder.put("nullValue", keyNull);
 
 					ImmutableMap<String, Object> props = builder.build();
+					
+					// generate cdi configuration
 					
 					Template config = generateTemplateFor("Configuration.vm", props);
 					JavaFileObject configSourceFile = processingEnv.getFiler()
@@ -123,6 +128,19 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					configBean.merge(contextFromProperties(props), configBeanWriter);
 					configBeanWriter.flush();
 					configBeanWriter.close();
+					
+					
+					// generate property file resolver if needed
+					if(propertyFileResolver.isPresent()){
+						JavaFileObject propertyFileResolverSourceFile = processingEnv.getFiler()
+								.createSourceFile(packageName + ".PropertyFileConfigurationResolver", e);
+						Template propertyFileResolverTemplate = generateTemplateFor("ConfigurationResolver.vm", props);
+						Writer propertyFileResolverWriter = propertyFileResolverSourceFile.openWriter();
+						propertyFileResolverTemplate.merge(contextFromProperties(props), propertyFileResolverWriter);
+						propertyFileResolverWriter.flush();
+						propertyFileResolverWriter.close();
+					}
+					
 				} catch (IOException e1) {
 					processingEnv.getMessager().printMessage(Kind.ERROR, "error creating file", e);
 				}
@@ -166,7 +184,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		return classElement.getEnclosedElements()
 			.stream()
 			.filter(x -> x.getKind() == ElementKind.METHOD)
-			.filter(x -> x.getAnnotation(CdiConfiguration.KeyString.class) != null)
+			.filter(x -> x.getAnnotation(PropertyFileResolver.KeyString.class) != null)
 			.map(x -> x.getSimpleName().toString() + "()")
 			.findFirst();
 	}

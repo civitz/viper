@@ -7,13 +7,15 @@ import javax.enterprise.context.ApplicationScoped;
 import com.google.common.primitives.Ints;
 
 import viper.CdiConfiguration;
+import viper.PropertyFileResolver;
 
 /*
  * You can specify one or more annotations for the Configuration Bean.
  * In this case, Configuration Bean will have the ApplicationScoped qualifier
  */
 @CdiConfiguration.PassAnnotations(ApplicationScoped.class)
-@CdiConfiguration(propertiesPath="/opt/generatortests/config.properties")
+@CdiConfiguration
+@PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
 public enum CompleteEnum {
 	FIRST_PROPERTY("my.particular.key", s -> Ints.tryParse(s) != null),
 	SECOND_PROPERTY("my.other.key", s -> s.length() >= 10),
@@ -51,7 +53,7 @@ public enum CompleteEnum {
 	 * You can specify a method to get a particular string value as a property
 	 * key instead of the generic enum constant name in lowercase.
 	 */
-	@CdiConfiguration.KeyString
+	@PropertyFileResolver.KeyString
 	public String getKeyString() {
 		return key;
 	}
