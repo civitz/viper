@@ -2,9 +2,31 @@
 
 [![Join the chat at https://gitter.im/cdi-viper/Lobby](https://badges.gitter.im/cdi-viper/Lobby.svg)](https://gitter.im/cdi-viper/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A generator and a framework for injecting configurations via CDI
+A generator and a framework for injecting configurations via CDI.
+
+Put all your configuration keys in an enum, and make viper inject the configurations in your beans.
 
 ## As simple as
+
+Import library and generators in maven:
+
+```xml
+<dependency>
+	<groupId>civitz.viper</groupId>
+	<artifactId>library</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+	<groupId>civitz.viper</groupId>
+	<artifactId>generator</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<scope>provided</scope>
+	<optional>true</optional>
+</dependency>
+
+```
+
+Then annotate the enum of your configuration keys as follows:
 
 ```java
 
@@ -12,7 +34,8 @@ package tests;
 
 import civitz.viper.CdiConfiguration;
 
-@CdiConfiguration(propertiesPath="/opt/tests/config.properties")
+@CdiConfiguration
+@PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
 public enum MyConfigs{
 	NULL, // placeholder, will not be usable
 	
@@ -27,6 +50,7 @@ Viper will also generate a `Configuration` qualifier annotation, in this form:
 ```java
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
+@Target({FIELD,TYPE,METHOD,PARAMETER})
 public @interface Configuration {
 	@Nonbinding
 	MyConfigs value() default MyConfigs.NULL;
@@ -71,8 +95,9 @@ import civitz.viper.CdiConfiguration;
  * You can specify one or more annotations for the Configuration Bean.
  * In this case, Configuration Bean will have the ApplicationScoped qualifier
  */
-@CdiConfiguration.PassAnnotations({ApplicationScoped.class})
-@CdiConfiguration(propertiesPath="/opt/generatortests/config.properties")
+@CdiConfiguration.PassAnnotations(ApplicationScoped.class)
+@CdiConfiguration
+@PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
 public enum CompleteEnum {
 
 	FIRST_PROPERTY("my.particular.key", s -> Ints.tryParse(s) != null),
@@ -111,10 +136,12 @@ public enum CompleteEnum {
 	 * You can specify a method to get a particular string value as a property
 	 * key instead of the generic enum constant name in lowercase.
 	 */
-	@CdiConfiguration.KeyString
+	@PropertyFileResolver.KeyString
 	public String getKeyString() {
 		return key;
 	}
 }
 
 ```
+
+Or you can omit the `@PropertyFileResolver` and provide your own @Inject-able implementation of `ConfigurationResolver<YourEnum>` via CDI. For example, you can create a configuration resolver for etcd.  
