@@ -36,9 +36,7 @@ import civitz.viper.CdiConfiguration;
 
 @CdiConfiguration
 @PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
-public enum MyConfigs{
-	NULL, // placeholder, will not be usable
-	
+public enum MyConfigs {	
 	FIRST_PROPERTY,
 	SECOND_PROPERTY;
 }
@@ -53,7 +51,7 @@ Viper will also generate a `Configuration` qualifier annotation, in this form:
 @Target({FIELD,TYPE,METHOD,PARAMETER})
 public @interface Configuration {
 	@Nonbinding
-	MyConfigs value() default MyConfigs.NULL;
+	MyConfigs value() default MyConfigs.FIRST_PROPERTY;
 }
 
 ```
@@ -73,6 +71,10 @@ public MyApplicationLogic {
 	@Configuration(MyConfigs.FIRST_PROPERTY)	
 	String firstProperty;
 	
+	@Inject
+	@Configuration(MyConfigs.SECOND_PROPERTY)
+	String secondProperty;
+
 	void myMethod(){
 		// use the property, Luke
 	}
