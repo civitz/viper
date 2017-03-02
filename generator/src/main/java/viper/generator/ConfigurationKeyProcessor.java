@@ -67,7 +67,6 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		// TODO Auto-generated method stub
 		processingEnv.getMessager().printMessage(Kind.NOTE, "called processing");
 		Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith(CdiConfiguration.class);
 		if (elementsAnnotatedWith.size() > 1) {
@@ -90,7 +89,6 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					Builder<String, Object> builder = ImmutableMap.<String, Object> builder()
 						.put("enumClass", className)
 						.put("packageName", packageName)
-//						.put("propertiesPath", propertiesPath)
 						.put("passedAnnotations", passedAnnotations);
 					
 					getValidatorMethod(classElement).ifPresent(method -> {
@@ -142,7 +140,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					}
 					
 				} catch (IOException e1) {
-					processingEnv.getMessager().printMessage(Kind.ERROR, "error creating file", e);
+					processingEnv.getMessager().printMessage(Kind.ERROR, "error creating files", e);
 				}
 
 			} else {
@@ -205,7 +203,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		}
 		Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = mirror.get().getElementValues();
 		Optional<? extends AnnotationValue> value = elementValues.entrySet().stream()
-			.filter(entry->entry.getKey().getSimpleName().toString().equals("value"))
+			.filter(entry -> entry.getKey().getSimpleName().toString().equals("value"))
 			.map(Entry::getValue)
 			.findFirst();
 		
@@ -217,7 +215,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 		List<Object> annotations = (List<Object>) value.get().getValue();
 		return	annotations.stream()
 			.map(Object::toString)
-			.map(s->s.endsWith(".class")?s.substring(0, s.length()-6):s)
+			.map(s -> s.endsWith(".class") ? s.substring(0, s.length() - 6) : s)
 			.collect(toList());
 	}
 	
