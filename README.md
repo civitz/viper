@@ -12,12 +12,12 @@ Import library and generators in maven:
 
 ```xml
 <dependency>
-	<groupId>civitz.viper</groupId>
+	<groupId>com.github.civitz.viper</groupId>
 	<artifactId>library</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 </dependency>
 <dependency>
-	<groupId>civitz.viper</groupId>
+	<groupId>com.github.civitz.viper</groupId>
 	<artifactId>generator</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<scope>provided</scope>
