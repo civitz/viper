@@ -85,18 +85,37 @@ public class ConfigurationBean {
 		return s == null || s.trim().isEmpty();
 	}
 
+	public String getProperty(${enumClass} keyEnum) {
+		return resolver.getConfigurationValue(keyEnum);
+	}
+	
+	private ${enumClass} getEnumFromInjectionPoint(InjectionPoint ip) {
+		Configuration annotation = ip.getAnnotated().getAnnotation(Configuration.class);
+		return annotation.value();
+	}
 
 	@Produces
 	@Configuration
 	private String getStringProperty(InjectionPoint ip) {
-		Configuration annotation = ip.getAnnotated().getAnnotation(Configuration.class);
-		${enumClass} keyEnum = annotation.value();
+		${enumClass} keyEnum = getEnumFromInjectionPoint(ip);
 		return getProperty(keyEnum);
 	}
 
-	public String getProperty(${enumClass} keyEnum) {
-		return resolver.getConfigurationValue(keyEnum);
+#if ( $producersForPrimitives )
+#foreach ($type in ["Byte", "Short", "Integer", "Long", "Float", "Double", "Boolean"])
+	@Produces
+	@Configuration
+	private ${type} get${type}Property(InjectionPoint ip) {
+		String stringProperty = getStringProperty(ip);
+		return ${type}.valueOf(stringProperty);
 	}
-
-
+#end
+	
+	@Produces
+	@Configuration
+	private Character getCharacterProperty(InjectionPoint ip) {
+		String stringProperty = getStringProperty(ip);
+		return stringProperty.charAt(0);
+	}
+#end
 }
