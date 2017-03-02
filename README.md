@@ -36,9 +36,7 @@ import civitz.viper.CdiConfiguration;
 
 @CdiConfiguration
 @PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
-public enum MyConfigs{
-	NULL, // placeholder, will not be usable
-	
+public enum MyConfigs {	
 	FIRST_PROPERTY,
 	SECOND_PROPERTY;
 }
@@ -53,7 +51,7 @@ Viper will also generate a `Configuration` qualifier annotation, in this form:
 @Target({FIELD,TYPE,METHOD,PARAMETER})
 public @interface Configuration {
 	@Nonbinding
-	MyConfigs value() default MyConfigs.NULL;
+	MyConfigs value() default MyConfigs.FIRST_PROPERTY;
 }
 
 ```
@@ -73,6 +71,10 @@ public MyApplicationLogic {
 	@Configuration(MyConfigs.FIRST_PROPERTY)	
 	String firstProperty;
 	
+	@Inject
+	@Configuration(MyConfigs.SECOND_PROPERTY)
+	String secondProperty;
+
 	void myMethod(){
 		// use the property, Luke
 	}
@@ -114,14 +116,14 @@ import viper.PropertyFileResolver;
 public enum CompleteEnum {
 
 	FIRST_PROPERTY("my.particular.key", s -> Ints.tryParse(s) != null),
-	SECOND_PROPERTY("my.other.key", s -> s.length() >= 10),
 
 	/*
-	 * You can mark a specific enum constant to be the null value instead of the
+	 * You can mark a specific enum constant to be the default key instead of the
 	 * first one
 	 */
-	@CdiConfiguration.KeyNullValue
-	PLEASE_IGNORE_ME("");
+	@CdiConfiguration.DefaultKey
+	SECOND_PROPERTY("my.other.key", s -> s.length() >= 10);
+	
 
 	String key;
 	Predicate<String> validator;

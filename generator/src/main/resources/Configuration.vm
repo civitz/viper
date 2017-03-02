@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 @Target({FIELD,TYPE,METHOD,PARAMETER})
 public @interface Configuration {
 	@Nonbinding
-	${enumClass} value() default ${enumClass}.${nullValue};
+	${enumClass} value() default ${enumClass}.${defaultKey};
 }

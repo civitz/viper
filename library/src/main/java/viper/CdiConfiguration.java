@@ -48,8 +48,8 @@ import java.util.function.Predicate;
  * <p>
  * Use sub-annotations to obtain specific variants of the configuration bean:
  * <ul>
- * <li>{@link KeyNullValue} to specify a different enum constant to use as null
- * value</li>
+ * <li>{@link DefaultKey} to specify a different enum constant to use as default
+ * key</li>
  * <li>{@link ConfigValidator} to specify a different null value for the enum
  * </li>
  * <li>{@link PassAnnotations} to specify a set of annotations to be passed to
@@ -69,12 +69,12 @@ public @interface CdiConfiguration {
 	boolean producersForPrimitives() default false;
 	
 	/**
-	 * Specifies an enum constant to be used as the null constant, i.e. a
-	 * constant that is not linked to a property.
+	 * Specifies an enum constant to be used as the default constant. This will
+	 * be used to construct the qualifier annotation.
 	 */
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public static @interface KeyNullValue {
+	public static @interface DefaultKey {
 	}
 	
 	/**

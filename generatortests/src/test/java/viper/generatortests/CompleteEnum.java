@@ -27,15 +27,15 @@ import viper.PropertyFileResolver;
  */
 @PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
 public enum CompleteEnum {
+
 	FIRST_PROPERTY("my.particular.key", s -> Ints.tryParse(s) != null),
-	SECOND_PROPERTY("my.other.key", s -> s.length() >= 10),
 
 	/*
-	 * You can mark a specific enum constant to be the null value instead of the
+	 * You can mark a specific enum constant to be the default value instead of the
 	 * first one
 	 */
-	@CdiConfiguration.KeyNullValue
-	PLEASE_IGNORE_ME("");
+	@CdiConfiguration.DefaultKey
+	SECOND_PROPERTY("my.other.key", s -> s.length() >= 10);
 
 	String key;
 	Predicate<String> validator;
