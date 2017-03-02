@@ -106,8 +106,8 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						builder.put("keyString", method);
 					});
 
-					String keyNull = getKeyNullValue(classElement).orElseGet(() -> getFirstEnumConstant(classElement));
-					builder.put("nullValue", keyNull);
+					String defaultKey = getDefaultEnumKey(classElement).orElseGet(() -> getFirstEnumConstant(classElement));
+					builder.put("defaultKey", defaultKey);
 
 					ImmutableMap<String, Object> props = builder.build();
 					
@@ -171,11 +171,11 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 			.findFirst();
 	}
 	
-	private Optional<String> getKeyNullValue(TypeElement classElement) {
+	private Optional<String> getDefaultEnumKey(TypeElement classElement) {
 		return classElement.getEnclosedElements()
 				.stream()
 				.filter(x -> x.getKind() == ElementKind.ENUM_CONSTANT)
-				.filter(x -> x.getAnnotation(CdiConfiguration.KeyNullValue.class) != null)
+				.filter(x -> x.getAnnotation(CdiConfiguration.DefaultKey.class) != null)
 				.map(x -> x.getSimpleName().toString())
 				.findFirst();
 	}

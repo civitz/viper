@@ -28,11 +28,6 @@ public class ConfigurationBean {
 #end
 		
 		for (${enumClass} config : ${enumClass}.values()) {
-			if(isNullValue(config)){
-				continue;
-			}
-		
-			//String key = enumToKeyString(config);
 			String property = resolver.getConfigurationValue(config);
 			
 			if (isNullOrEmpty(property)) {
@@ -55,14 +50,6 @@ public class ConfigurationBean {
 			throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
 		}
 
-	}
-
-	private boolean isNullValue(${enumClass} config) {
-#if ( $nullValue )
-		return ${enumClass}.${nullValue} == config;
-#else
-		return ${enumClass}.values()[0] == config;
-#end
 	}
 
 	private String formatMissing(${enumClass} config) {
