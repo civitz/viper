@@ -89,7 +89,10 @@ import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import civitz.viper.CdiConfiguration;
+import com.google.common.primitives.Ints;
+
+import viper.CdiConfiguration;
+import viper.PropertyFileResolver;
 
 /*
  * You can specify one or more annotations for the Configuration Bean.
