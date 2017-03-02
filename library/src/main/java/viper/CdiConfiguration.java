@@ -48,8 +48,6 @@ import java.util.function.Predicate;
  * <p>
  * Use sub-annotations to obtain specific variants of the configuration bean:
  * <ul>
- * <li>{@link KeyString} to specify a method to extract the key string of a
- * property, instead of the default value</li>
  * <li>{@link KeyNullValue} to specify a different enum constant to use as null
  * value</li>
  * <li>{@link ConfigValidator} to specify a different null value for the enum
@@ -62,17 +60,6 @@ import java.util.function.Predicate;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface CdiConfiguration {
-
-	String propertiesPath();
-
-	/**
-	 * Specifies a method to obtain the key in place of
-	 * <code>enumConstant.name().toLowerCase()</code>
-	 */
-	@Retention(RetentionPolicy.SOURCE)
-	@Target({ ElementType.METHOD })
-	public static @interface KeyString {
-	}
 
 	/**
 	 * Specifies an enum constant to be used as the null constant, i.e. a

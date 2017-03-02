@@ -1,0 +1,58 @@
+package ${packageName};
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+
+import viper.ConfigurationResolver;
+
+public class PropertyFileConfigurationResolver implements ConfigurationResolver<${enumClass}> {
+
+	private static final String PROPERTIES_PATH = "${propertiesPath}";
+
+	Properties properties = new Properties();
+
+	@PostConstruct
+	void init() {
+		properties = getAvailableProperties(PROPERTIES_PATH);
+	}
+	
+	@Override
+	public String getConfigurationValue(${enumClass} key) {
+		return properties.getProperty(enumToKeyString(key));
+	}
+	
+	@Override
+	public String getConfigurationKey(${enumClass} key) {
+		return enumToKeyString(key);
+	}
+	
+	
+#if ( $keyString )
+	private static String enumToKeyString(${enumClass} e){
+		return e.${keyString};
+	}
+#else
+	private static String enumToKeyString(${enumClass} e){
+		return e.name().toLowerCase();
+	}
+#end
+	
+	private static Properties getAvailableProperties(String propertiesPath) {
+		File file = new File(propertiesPath);
+		if (!file.exists() || !file.canRead() || !file.isFile()) {
+			throw new IllegalArgumentException("Unable to read file " + propertiesPath);
+		}
+		Properties properties = new Properties();
+		try {
+			properties.load(new FileInputStream(file));
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Unable to read file " + propertiesPath, e);
+		}
+		return properties;
+	}
+}
+

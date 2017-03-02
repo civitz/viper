@@ -3,37 +3,25 @@ package ${packageName};
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Stream.concat;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.inject.Inject;
+
+import viper.ConfigurationResolver;
 
 #foreach( $annotation in $passedAnnotations )
 @$annotation
 #end
 public class ConfigurationBean {
 
-	private static final String PROPERTIES_PATH = "${propertiesPath}";
-
-	Properties properties = new Properties();
+	@Inject
+	ConfigurationResolver<${enumClass}> resolver;
 
 	@PostConstruct
-	void init() {
-
-		Properties availableProperties = getAvailableProperties(PROPERTIES_PATH);
-
-		validateProperties(availableProperties);
-
-		properties.clear();
-		properties.putAll(availableProperties);
-	}
-
-	private void validateProperties(Properties availableProperties) {
+	void validateProperties() {
 		ArrayList<String> missing= new ArrayList<>();
 #if ( $validator ) 
 		ArrayList<String> invalid= new ArrayList<>();
@@ -44,8 +32,8 @@ public class ConfigurationBean {
 				continue;
 			}
 		
-			String key = enumToKeyString(config);
-			String property = availableProperties.getProperty(key);
+			//String key = enumToKeyString(config);
+			String property = resolver.getConfigurationValue(config);
 			
 			if (isNullOrEmpty(property)) {
 				missing.add(formatMissing(config));
@@ -66,7 +54,6 @@ public class ConfigurationBean {
 #end
 			throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
 		}
-			
 
 	}
 
@@ -78,13 +65,13 @@ public class ConfigurationBean {
 #end
 	}
 
-	private static String formatMissing(${enumClass} config) {
-		return "Property " + config.name() + " (" + enumToKeyString(config) + ") is missing";
+	private String formatMissing(${enumClass} config) {
+		return "Property " + config.name() + " (" + resolver.getConfigurationKey(config) + ") is missing";
 	}
 	
 #if ( $validator )
 	private String formatInvalid(${enumClass} config, String property) {
-		return "Property " + config.name() + " (" + enumToKeyString(config) + ") is invalid for value \"" + property
+		return "Property " + config.name() + " (" + resolver.getConfigurationKey(config) + ") is invalid for value \"" + property
 				+ "\"";
 	}
 
@@ -98,15 +85,6 @@ public class ConfigurationBean {
 		return s == null || s.trim().isEmpty();
 	}
 
-#if ( $keyString )
-	private static String enumToKeyString(${enumClass} e){
-		return e.${keyString};
-	}
-#else
-	private static String enumToKeyString(${enumClass} e){
-		return e.name().toLowerCase();
-	}
-#end
 
 	@Produces
 	@Configuration
@@ -117,22 +95,8 @@ public class ConfigurationBean {
 	}
 
 	public String getProperty(${enumClass} keyEnum) {
-		String keyString = enumToKeyString(keyEnum);
-		return properties.getProperty(keyString);
+		return resolver.getConfigurationValue(keyEnum);
 	}
 
-	private static Properties getAvailableProperties(String propertiesPath) {
-		File file = new File(propertiesPath);
-		if (!file.exists() || !file.canRead() || !file.isFile()) {
-			throw new IllegalArgumentException("Unable to read file " + propertiesPath);
-		}
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(file));
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Unable to read file " + propertiesPath, e);
-		}
-		return properties;
-	}
 
 }
