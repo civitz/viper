@@ -81,6 +81,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 					// properties for cdi configuration 
 					String className = classElement.getSimpleName().toString();
+					boolean producersForPrimitives = classElement.getAnnotation(CdiConfiguration.class).producersForPrimitives();
 
 					List<String> passedAnnotations = getPassedAnnotations(classElement);
 					String packageName = packageElement.getQualifiedName().toString();
@@ -89,7 +90,8 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					Builder<String, Object> builder = ImmutableMap.<String, Object> builder()
 						.put("enumClass", className)
 						.put("packageName", packageName)
-						.put("passedAnnotations", passedAnnotations);
+						.put("passedAnnotations", passedAnnotations)
+						.put("producersForPrimitives", producersForPrimitives);
 					
 					getValidatorMethod(classElement).ifPresent(method -> {
 						builder.put("validator", method);

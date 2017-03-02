@@ -99,7 +99,17 @@ import viper.PropertyFileResolver;
  * In this case, Configuration Bean will have the ApplicationScoped qualifier
  */
 @CdiConfiguration.PassAnnotations(ApplicationScoped.class)
-@CdiConfiguration
+/*
+ * Tell the processor to create producers also for primitive types: Byte,
+ * Character, Short, Integer, Long, Float, Double, Boolean. Take this feature
+ * with care: we don't verify if the transformation from string is possible,
+ * exceptions may be thrown.
+ */
+@CdiConfiguration(producersForPrimitives = true)
+/*
+ * Generate a Properties-based file-sourced configuration resolver with the
+ * given configuration file's path
+ */
 @PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
 public enum CompleteEnum {
 

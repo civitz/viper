@@ -62,6 +62,13 @@ import java.util.function.Predicate;
 public @interface CdiConfiguration {
 
 	/**
+	 * If set to <code>true</code>, the configuration bean will have producers
+	 * methods for primitives (Integer, Double, Long, Byte). The default is
+	 * false.
+	 */
+	boolean producersForPrimitives() default false;
+	
+	/**
 	 * Specifies an enum constant to be used as the null constant, i.e. a
 	 * constant that is not linked to a property.
 	 */
