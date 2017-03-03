@@ -47,6 +47,10 @@
 					<compilerArgument>-proc:none</compilerArgument>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 </project>
