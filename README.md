@@ -160,4 +160,50 @@ public enum CompleteEnum {
 
 ```
 
-Or you can omit the `@PropertyFileResolver` and provide your own @Inject-able implementation of `ConfigurationResolver<YourEnum>` via CDI. For example, you can create a configuration resolver for etcd.  
+## A custom configuration resolver
+
+You can omit the `@PropertyFileResolver` and provide your own @Inject-able implementation of `ConfigurationResolver<YourEnum>` via CDI. For example, supposing you have this enum:
+
+```java
+package tests;
+
+import civitz.viper.CdiConfiguration;
+
+@CdiConfiguration
+public enum MyConfigs {	
+	FIRST_PROPERTY,
+	SECOND_PROPERTY;
+}
+```
+
+You can write your own:
+
+```java
+package test;
+
+import viper.ConfigurationResolver;
+
+public class OuterSpaceConfigurationResolver implements ConfigurationResolver<MyConfigs> {
+
+	@Override
+	public String getConfigurationValue(MyConfigs key) {
+		// you can extract data from the enum here, since you know it
+		return fetchConfigurationValueFromOuterSpace(key);
+	}
+	
+	/*
+	 * You can optionally override getConfigurationKey to provide a meaningful
+	 * string representation of your configuration key.
+	 */
+	@Override
+	public String getConfigurationKey(MyConfigs key) {
+		return "my.conf.prefix."+key.name().toLowerCase();
+	}
+
+	// implementation for fetchConfigurationValueFromOuterSpace omitted
+}
+```
+
+And the generated `ConfigurationBean` will use that class (via CDI, so be sure it's inject-able) to resolve properties.
+
+Be aware of the fact that you can't inject `MyConfigs` properties in your own resolver, since it would create a circular injection dependency. Use another method to configure your resolver (e.g. read properties from file, or from `System`).  
