@@ -13,7 +13,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,6 +31,7 @@ import java.util.function.Predicate;
 
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.inject.Inject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
@@ -142,7 +146,7 @@ public class CompleteEnumTest {
 	}
 	
 	@Test
-	public void shouldGeneratedConfigurationBeanClass() throws Exception {
+	public void shouldGenerateConfigurationBeanClass() throws Exception {
 		assumingAnnotationProcessorHasRun();
 		String className = packageName + ".ConfigurationBean";
 		Class<?> confBeanClass = tryLoadClassFromCompiledFiles(className).orElse(null);
@@ -150,23 +154,26 @@ public class CompleteEnumTest {
 			.isNotNull()
 			.isNotAnnotation();
 		
-		softly.assertThat(confBeanClass.getDeclaredMethods())
-			.has(aMethodThat("validates a property", 
-					hasName("isValid"), 
-					hasParametersOfType(CompleteEnum.class, String.class),
-					isStatic()))
-			.has(aMethodThat("formats a message for missing properties", 
-					hasName("formatMissing"),
-					hasParametersOfType(CompleteEnum.class),
-					isStatic().negate()))
-			.has(aMethodThat("formats a message for invalid properties", 
-					hasName("formatInvalid"),
-					hasParametersOfType(CompleteEnum.class, String.class),
-					isStatic().negate()));
+		Field field = confBeanClass.getDeclaredField("resolver");
+		assertThat(field).isNotNull();
+		
+		softly.assertThat(field.getType())
+			.as("Should have a resolver field of type " + ConfigurationResolver.class.getSimpleName())
+			.isEqualTo(ConfigurationResolver.class);
+		Type[] actualTypeArguments = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
+		softly.assertThat(actualTypeArguments)
+			.as("Should have a resolver field of generic type " + CompleteEnum.class.getSimpleName())
+			.containsExactly(CompleteEnum.class);
+		
+		softly.assertThat(field.getAnnotations())
+			.hasSize(1);
+		softly.assertThat(field.getAnnotations()[0].annotationType())
+			.as("Should have an inject-able resolver")
+			.isEqualTo(Inject.class);
 	}
 	
 	@Test
-	public void shouldGenerateAllProducerMethods() throws Exception {
+	public void shouldGenerateAllProducerMethodsForConfigurationBean() throws Exception {
 		assumingAnnotationProcessorHasRun();
 		
 		String beanClassName = packageName + ".ConfigurationBean";
@@ -182,6 +189,18 @@ public class CompleteEnumTest {
 		final Class<? extends Annotation> generatedAnnotation = annotationClass.get();
 		
 		softly.assertThat(beanClass.get().getDeclaredMethods())
+			.has(aMethodThat("validates a property", 
+					hasName("isValid"), 
+					hasParametersOfType(CompleteEnum.class, String.class),
+					isStatic()))
+			.has(aMethodThat("formats a message for missing properties", 
+					hasName("formatMissing"),
+					hasParametersOfType(CompleteEnum.class),
+					isStatic().negate()))
+			.has(aMethodThat("formats a message for invalid properties", 
+					hasName("formatInvalid"),
+					hasParametersOfType(CompleteEnum.class, String.class),
+					isStatic().negate()))
 			.has(aCdiProducerMethod(generatedAnnotation, "getStringProperty", String.class))
 			.has(aCdiProducerMethod(generatedAnnotation, "getByteProperty", Byte.class))
 			.has(aCdiProducerMethod(generatedAnnotation, "getShortProperty", Short.class))
@@ -194,7 +213,7 @@ public class CompleteEnumTest {
 	}
 	
 	@Test
-	public void shouldGeneratedConfigurationAnnotation() throws Exception {
+	public void shouldGenerateConfigurationAnnotation() throws Exception {
 		assumingAnnotationProcessorHasRun();
 		String className = packageName + ".Configuration";
 		Class<?> confBeanClass = tryLoadClassFromCompiledFiles(className).orElse(null);
@@ -211,7 +230,7 @@ public class CompleteEnumTest {
 	}
 	
 	@Test
-	public void shouldGeneratedPropertyFileConfigurationResolver() throws Exception {
+	public void shouldGeneratePropertyFileConfigurationResolver() throws Exception {
 		assumingAnnotationProcessorHasRun();
 		String className = packageName + ".PropertyFileConfigurationResolver";
 		Class<?> confBeanClass = tryLoadClassFromCompiledFiles(className).orElse(null);
@@ -233,12 +252,12 @@ public class CompleteEnumTest {
 
 	@SafeVarargs
 	static Condition<Method[]> aMethodThat(String description, Predicate<Method> first, Predicate<Method>... predicates){
-		final Predicate<Method> list = Arrays.stream(predicates)
+		final Predicate<Method> combinedPredicate = Arrays.stream(predicates)
 				.reduce(first, Predicate::and);
-		Predicate<Method[]> combined = methods -> Arrays.stream(methods)
-					.filter(list)
+		Predicate<Method[]> methodsPredicate = methods -> Arrays.stream(methods)
+					.filter(combinedPredicate)
 					.count() == 1;
-		return new Condition<Method[]>(combined, "a method that " + description);
+		return new Condition<Method[]>(methodsPredicate, "a method that " + description);
 	}
 	
 	public Condition<Method[]> aCdiProducerMethod(final Class<? extends Annotation> generatedAnnotation,
