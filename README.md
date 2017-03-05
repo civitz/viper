@@ -15,12 +15,12 @@ Import library and generators in maven:
 <dependency>
 	<groupId>com.github.civitz.viper</groupId>
 	<artifactId>library</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 </dependency>
 <dependency>
 	<groupId>com.github.civitz.viper</groupId>
 	<artifactId>generator</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<scope>provided</scope>
 	<optional>true</optional>
 </dependency>
