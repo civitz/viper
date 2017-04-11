@@ -2,9 +2,9 @@ package viper.generatortests;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
-import static viper.generatortests.utils.MethodPredicates.hasAnnotations;
+import static viper.generatortests.utils.MethodPredicates.aCdiProducerMethod;
+import static viper.generatortests.utils.MethodPredicates.aMethodThat;
 import static viper.generatortests.utils.MethodPredicates.hasName;
 import static viper.generatortests.utils.MethodPredicates.hasParametersOfType;
 import static viper.generatortests.utils.MethodPredicates.hasReturnType;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
@@ -30,8 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
@@ -57,7 +55,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.NameExpr;
 
 import viper.ConfigurationResolver;
 import viper.generator.ConfigurationKeyProcessor;
@@ -152,6 +149,7 @@ public class CompleteEnumTest {
 		annotationProcessorHasRunSuccesfully = true;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void shouldGenerateConfigurationBeanClass() throws Exception {
 		assumingAnnotationProcessorHasRun();
@@ -177,6 +175,10 @@ public class CompleteEnumTest {
 		softly.assertThat(field.getAnnotations()[0].annotationType())
 			.as("Should have an inject-able resolver")
 			.isEqualTo(Inject.class);
+		
+		softly.assertThat(confBeanClass.getAnnotations())
+			.extracting(ann->(Class)ann.annotationType())
+			.containsExactly(ApplicationScoped.class);
 	}
 	
 	@Test
@@ -304,25 +306,6 @@ public class CompleteEnumTest {
 				.anyMatch(
 						a -> a.getChildrenNodes().stream().anyMatch(n -> n.toStringWithoutComments().contains(value)));
 		return new Condition<>(predicate, "a @Generated annotation with value " + value);
-	}
-
-	@SafeVarargs
-	static Condition<Method[]> aMethodThat(String description, Predicate<Method> first, Predicate<Method>... predicates){
-		final Predicate<Method> combinedPredicate = Arrays.stream(predicates)
-				.reduce(first, Predicate::and);
-		Predicate<Method[]> methodsPredicate = methods -> Arrays.stream(methods)
-					.filter(combinedPredicate)
-					.count() == 1;
-		return new Condition<Method[]>(methodsPredicate, "a method that " + description);
-	}
-	
-	public Condition<Method[]> aCdiProducerMethod(final Class<? extends Annotation> generatedAnnotation,
-			final String methodName, final Class<?> producerType) {
-		return aMethodThat("produces "+ producerType.getSimpleName() + " properties", 
-				hasName(methodName),
-				hasParametersOfType(InjectionPoint.class),
-				hasReturnType(producerType),
-				hasAnnotations(Produces.class, generatedAnnotation));
 	}
 
 	public URLClassLoader getClassLoaderForCompiledFiles() throws MalformedURLException {
