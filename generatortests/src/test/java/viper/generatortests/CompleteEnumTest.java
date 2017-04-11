@@ -2,6 +2,7 @@ package viper.generatortests;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static viper.generatortests.utils.MethodPredicates.hasAnnotations;
 import static viper.generatortests.utils.MethodPredicates.hasName;
@@ -51,6 +52,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.NameExpr;
 
 import viper.ConfigurationResolver;
 import viper.generator.ConfigurationKeyProcessor;
@@ -248,6 +255,55 @@ public class CompleteEnumTest {
 					isStatic().negate(),
 					hasParametersOfType(CompleteEnum.class),
 					hasReturnType(String.class)));
+	}
+
+	@Test
+	public void shouldAddGeneratedAnnotationToGeneratedSourceCode_propertyFileResolver() throws Exception {
+		assumingAnnotationProcessorHasRun();
+		final File generatedPropertyResolver = findFileInGeneratedSources("PropertyFileConfigurationResolver.java");
+		CompilationUnit compilationUnit = JavaParser.parse(generatedPropertyResolver);
+		TypeDeclaration typeDeclaration = compilationUnit.getTypes().get(0);
+
+		assertThat(typeDeclaration.getAnnotations())
+				.has(aGeneratedAnnotationWithValue(ConfigurationKeyProcessor.class.getCanonicalName()));
+	}
+
+	@Test
+	public void shouldAddGeneratedAnnotationToGeneratedSourceCode_configurationBean() throws Exception {
+		assumingAnnotationProcessorHasRun();
+		File generatedConfigurationBean = findFileInGeneratedSources("ConfigurationBean.java");
+		CompilationUnit compilationUnit = JavaParser.parse(generatedConfigurationBean);
+		TypeDeclaration typeDeclaration = compilationUnit.getTypes().get(0);
+
+		assertThat(typeDeclaration.getAnnotations())
+			.has(aGeneratedAnnotationWithValue(ConfigurationKeyProcessor.class.getCanonicalName()));
+	}
+
+	@Test
+	public void shouldAddGeneratedAnnotationToGeneratedSourceCode_configurationAnnotation() throws Exception {
+		assumingAnnotationProcessorHasRun();
+		File generatedConfigurationBean = findFileInGeneratedSources("Configuration.java");
+		CompilationUnit compilationUnit = JavaParser.parse(generatedConfigurationBean);
+		TypeDeclaration typeDeclaration = compilationUnit.getTypes().get(0);
+
+		assertThat(typeDeclaration.getAnnotations())
+			.has(aGeneratedAnnotationWithValue(ConfigurationKeyProcessor.class.getCanonicalName()));
+	}
+
+	public File findFileInGeneratedSources(String classFileName) throws AssertionError, IOException {
+		Path classPath = Files.find(generatedSourcesDir.toPath(), 10, (file,attr)-> file.getFileName().toString().equals(classFileName))
+			.findFirst()
+			.orElseThrow(()->new AssertionError("no " + classFileName + " found"));
+		final File file = classPath.toFile();
+		return file;
+	}
+
+	private Condition<? super List<? extends AnnotationExpr>> aGeneratedAnnotationWithValue(String value) {
+		Predicate<? super List<? extends AnnotationExpr>> predicate = annotations -> annotations.stream()
+				.filter(a -> a.getName().toStringWithoutComments().equals("Generated"))
+				.anyMatch(
+						a -> a.getChildrenNodes().stream().anyMatch(n -> n.toStringWithoutComments().contains(value)));
+		return new Condition<>(predicate, "a @Generated annotation with value " + value);
 	}
 
 	@SafeVarargs

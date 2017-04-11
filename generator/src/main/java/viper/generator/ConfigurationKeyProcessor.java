@@ -88,6 +88,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 					
 					Builder<String, Object> builder = ImmutableMap.<String, Object> builder()
+						.put("generatorName",getClass().getCanonicalName())
 						.put("enumClass", className)
 						.put("packageName", packageName)
 						.put("passedAnnotations", passedAnnotations)
