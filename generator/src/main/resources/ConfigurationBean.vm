@@ -17,7 +17,7 @@ import viper.ConfigurationResolver;
 @$annotation
 #end
 @Generated("$generatorName")
-public class ConfigurationBean {
+public class ${enumClass}ConfigurationBean {
 
 	@Inject
 	ConfigurationResolver<${enumClass}> resolver;
@@ -79,12 +79,12 @@ public class ConfigurationBean {
 	}
 	
 	private ${enumClass} getEnumFromInjectionPoint(InjectionPoint ip) {
-		Configuration annotation = ip.getAnnotated().getAnnotation(Configuration.class);
+		${enumClass}Configuration annotation = ip.getAnnotated().getAnnotation(${enumClass}Configuration.class);
 		return annotation.value();
 	}
 
 	@Produces
-	@Configuration
+	@${enumClass}Configuration
 	private String getStringProperty(InjectionPoint ip) {
 		${enumClass} keyEnum = getEnumFromInjectionPoint(ip);
 		return getProperty(keyEnum);
@@ -93,7 +93,7 @@ public class ConfigurationBean {
 #if ( $producersForPrimitives )
 #foreach ($type in ["Byte", "Short", "Integer", "Long", "Float", "Double", "Boolean"])
 	@Produces
-	@Configuration
+	@${enumClass}Configuration
 	private ${type} get${type}Property(InjectionPoint ip) {
 		String stringProperty = getStringProperty(ip);
 		return ${type}.valueOf(stringProperty);
@@ -101,7 +101,7 @@ public class ConfigurationBean {
 #end
 	
 	@Produces
-	@Configuration
+	@${enumClass}Configuration
 	private Character getCharacterProperty(InjectionPoint ip) {
 		String stringProperty = getStringProperty(ip);
 		return stringProperty.charAt(0);

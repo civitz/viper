@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({FIELD,TYPE,METHOD,PARAMETER})
 @Generated("$generatorName")
-public @interface Configuration {
+public @interface ${enumClass}Configuration {
 	@Nonbinding
 	${enumClass} value() default ${enumClass}.${defaultKey};
 }
