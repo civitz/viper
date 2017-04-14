@@ -8,6 +8,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import javax.annotation.Generated;
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 import java.lang.annotation.Target;
@@ -15,6 +16,7 @@ import java.lang.annotation.Target;
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({FIELD,TYPE,METHOD,PARAMETER})
+@Generated("$generatorName")
 public @interface Configuration {
 	@Nonbinding
 	${enumClass} value() default ${enumClass}.${defaultKey};

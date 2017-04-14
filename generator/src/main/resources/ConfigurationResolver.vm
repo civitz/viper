@@ -5,10 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.annotation.Generated;
 import javax.annotation.PostConstruct;
 
 import viper.ConfigurationResolver;
 
+@Generated("$generatorName")
 public class PropertyFileConfigurationResolver implements ConfigurationResolver<${enumClass}> {
 
 	private static final String PROPERTIES_PATH = "${propertiesPath}";
