@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 import viper.ConfigurationResolver;
 
 @Generated("$generatorName")
-public class PropertyFileConfigurationResolver implements ConfigurationResolver<${enumClass}> {
+public class ${enumClass}PropertyFileConfigurationResolver implements ConfigurationResolver<${enumClass}> {
 
 	private static final String PROPERTIES_PATH = "${propertiesPath}";
 

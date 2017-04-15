@@ -69,9 +69,6 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		processingEnv.getMessager().printMessage(Kind.NOTE, "called processing");
 		Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith(CdiConfiguration.class);
-		if (elementsAnnotatedWith.size() > 1) {
-			processingEnv.getMessager().printMessage(Kind.ERROR, "more than one element per type CdiConfiguration");
-		}
 		for (Element e : elementsAnnotatedWith) {
 			if (e.getKind() == ElementKind.ENUM) {
 				try {
@@ -80,7 +77,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					PackageElement packageElement = (PackageElement) classElement.getEnclosingElement();
 
 					// properties for cdi configuration 
-					String className = classElement.getSimpleName().toString();
+					final String className = classElement.getSimpleName().toString();
 					boolean producersForPrimitives = classElement.getAnnotation(CdiConfiguration.class).producersForPrimitives();
 
 					List<String> passedAnnotations = getPassedAnnotations(classElement);
@@ -116,14 +113,14 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					
 					Template config = generateTemplateFor("Configuration.vm", props);
 					JavaFileObject configSourceFile = processingEnv.getFiler()
-							.createSourceFile(packageName + ".Configuration", e);
+							.createSourceFile(packageName + "." + className + "Configuration", e);
 					Writer configWriter = configSourceFile.openWriter();
 					config.merge(contextFromProperties(props), configWriter);
 					configWriter.flush();
 					configWriter.close();
 
 					JavaFileObject configBeanSourceFile = processingEnv.getFiler()
-							.createSourceFile(packageName + ".ConfigurationBean", e);
+							.createSourceFile(packageName + "." + className + "ConfigurationBean", e);
 					Template configBean = generateTemplateFor("ConfigurationBean.vm", props);
 					Writer configBeanWriter = configBeanSourceFile.openWriter();
 					configBean.merge(contextFromProperties(props), configBeanWriter);
@@ -134,7 +131,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					// generate property file resolver if needed
 					if(propertyFileResolver.isPresent()){
 						JavaFileObject propertyFileResolverSourceFile = processingEnv.getFiler()
-								.createSourceFile(packageName + ".PropertyFileConfigurationResolver", e);
+								.createSourceFile(packageName + "." + className + "PropertyFileConfigurationResolver", e);
 						Template propertyFileResolverTemplate = generateTemplateFor("ConfigurationResolver.vm", props);
 						Writer propertyFileResolverWriter = propertyFileResolverSourceFile.openWriter();
 						propertyFileResolverTemplate.merge(contextFromProperties(props), propertyFileResolverWriter);
