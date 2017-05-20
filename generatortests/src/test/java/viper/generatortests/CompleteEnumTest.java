@@ -70,7 +70,7 @@ public class CompleteEnumTest {
 	
 	private static final String packageName = CompleteEnum.class.getPackage().getName();
 	
-	public static boolean annotationProcessorHasRunSuccesfully = false;
+	private static boolean annotationProcessorHasRunSuccessfully = false;
 
 	private static File sourceDir;
 	private static File outputDir;
@@ -152,7 +152,7 @@ public class CompleteEnumTest {
 					enumClassName + "ConfigurationBean.java", // the injection
 					enumClassName + "PropertyFileConfigurationResolver.java" // the property file resolver
 				);
-		annotationProcessorHasRunSuccesfully = true;
+		annotationProcessorHasRunSuccessfully = true;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -208,10 +208,6 @@ public class CompleteEnumTest {
 					hasName("isValid"), 
 					hasParametersOfType(CompleteEnum.class, String.class),
 					isStatic()))
-			.has(aMethodThat("formats a message for missing properties", 
-					hasName("formatMissing"),
-					hasParametersOfType(CompleteEnum.class),
-					isStatic().negate()))
 			.has(aMethodThat("formats a message for invalid properties", 
 					hasName("formatInvalid"),
 					hasParametersOfType(CompleteEnum.class, String.class),
@@ -339,7 +335,7 @@ public class CompleteEnumTest {
 	 */
 	public void assumingAnnotationProcessorHasRun() {
 		assumeTrue("Annotation should have run succesfully for this test to run...",
-				annotationProcessorHasRunSuccesfully);
+				annotationProcessorHasRunSuccessfully);
 	}
 	
 	

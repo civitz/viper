@@ -22,43 +22,22 @@ public class ${enumClass}ConfigurationBean {
 	@Inject
 	ConfigurationResolver<${enumClass}> resolver;
 
+#if ( $validator )
 	@PostConstruct
 	void validateProperties() {
-		ArrayList<String> missing= new ArrayList<>();
-#if ( $validator ) 
 		ArrayList<String> invalid= new ArrayList<>();
-#end
-		
 		for (${enumClass} config : ${enumClass}.values()) {
 			String property = resolver.getConfigurationValue(config);
-			
-			if (isNullOrEmpty(property)) {
-				missing.add(formatMissing(config));
-			}  
-#if ( $validator ) 
-			else if (!isValid(config, property)) {
+			if (!isValid(config, property)) {
 				invalid.add(formatInvalid(config, property));
 			}
-#end
 		}
-			
-#if ( $validator )
-		if (missing.size() > 0 || invalid.size() > 0) {
-			String reasons = concat(missing.stream(), invalid.stream()).collect(joining(", "));
-#else
-		if (missing.size() > 0) {
-			String reasons = missing.stream().collect(joining(", "));
-#end
+		if (invalid.size() > 0) {
+			String reasons = invalid.stream().collect(joining(", "));
 			throw new IllegalArgumentException("Configuration is invalid for these reason: " + reasons);
 		}
-
 	}
 
-	private String formatMissing(${enumClass} config) {
-		return "Property " + config.name() + " (" + resolver.getConfigurationKey(config) + ") is missing";
-	}
-	
-#if ( $validator )
 	private String formatInvalid(${enumClass} config, String property) {
 		return "Property " + config.name() + " (" + resolver.getConfigurationKey(config) + ") is invalid for value \"" + property
 				+ "\"";
@@ -67,12 +46,7 @@ public class ${enumClass}ConfigurationBean {
 	private static boolean isValid(${enumClass} config, String property) {
 		return config.${validator}.test(property);
 	}
-	
 #end
-
-	private static boolean isNullOrEmpty(String s) {
-		return s == null || s.trim().isEmpty();
-	}
 
 	public String getProperty(${enumClass} keyEnum) {
 		return resolver.getConfigurationValue(keyEnum);
