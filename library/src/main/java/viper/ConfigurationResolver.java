@@ -19,19 +19,19 @@ public interface ConfigurationResolver<E extends Enum<E>> {
 	String getConfigurationValue(E key);
 
 	/**
-	 * Returns a string representation of the key.
+	 * Returns a string description of the key.
 	 * <p>
 	 * Use this if your key can be represented in a particular way. E.g. you are
 	 * using a property file and all your configurations have a particular
-	 * prefix.
+	 * prefix. Or if you can provide a textual description of a key.
 	 * <p>
-	 * This method will be called if, for a particular key, no value is found,
-	 * or the value is not valid: the string returned will be used to construct
-	 * the error message, along with the enum key name.
+	 * This method will be called if, for a particular key, the value is not
+	 * valid: the string returned will be used to construct the error message,
+	 * along with the enum constant name.
 	 * 
 	 * @param key
 	 *            the configuration key.
-	 * @return a string representation of the key.
+	 * @return a string description of the key.
 	 */
 	default String getConfigurationKey(E key) {
 		return key.name();
