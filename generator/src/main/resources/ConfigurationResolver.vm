@@ -49,8 +49,8 @@ public class ${enumClass}PropertyFileConfigurationResolver implements Configurat
 			throw new IllegalArgumentException("Unable to read file " + propertiesPath);
 		}
 		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(file));
+		try (FileInputStream fis = new FileInputStream(file)) {
+			properties.load(fis);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Unable to read file " + propertiesPath, e);
 		}
