@@ -3,9 +3,28 @@
 [![Join the chat at https://gitter.im/cdi-viper/Lobby](https://badges.gitter.im/cdi-viper/Lobby.svg)](https://gitter.im/cdi-viper/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![Build status](https://api.travis-ci.org/civitz/viper.svg)
 
-A generator and a framework for injecting configurations via CDI.
+A generator and a framework for injecting configurations via the java EE's CDI.
 
 Put all your configuration keys in an enum, and make viper inject the configurations in your beans.
+
+## Why another configuration library?
+
+There are many configuration frameworks around, and everyone is good in its own way. For those which support CDI-based configuration injection, the magic is usually done via annotation from the framework.
+
+What happens with framework-provided annotations is:
+- you can not trace back which configuration you need until you actually create an instance of an object and thus trigger configuration injection
+- each object is aware of the configuration keys it actually needs from the configuration source (e.g. the key in a configuration file)
+- injection happens necessarily with String-based keys
+
+What we want is a single source to enumerate the available configuration keys an application may need. By doing this we can:
+
+- centralize the source and know in advance which configurations an application will need
+- place validation criterias alongside configuration keys
+- make sure the inject-able configurations come only from the pool of known configurations
+
+We found a way to do this by using enums to limit the configuration keys, and generating the necessary annotations and configuration-injection code.
+
+Want to try this?
 
 ## As simple as
 
@@ -27,6 +46,8 @@ Import library and generators in maven:
 
 ```
 
+Be also sure to have the java EE spec as dependency.
+
 Then annotate the enum of your configuration keys as follows:
 
 ```java
@@ -43,40 +64,42 @@ public enum MyConfigs {
 }
 ```
 
-Viper will generate a `ConfigurationBean` class, which will read properties from the specified path. If properties are missing, the bean will throw an `IllegalArgumentException` in the initialization method.
+Viper will generate a `MyConfigsPropertyFileConfigurationResolver` class, which will read properties from the specified path: by default it will assume your properties are `Properties`-compatible, and use `key.name().toLowerCase()` as key.
 
-Viper will also generate a `Configuration` qualifier annotation, in this form:
+It will create a `MyConfigsConfiguration` qualifier annotation, in this form:
 ```java
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({FIELD,TYPE,METHOD,PARAMETER})
-public @interface Configuration {
+public @interface MyConfigsConfiguration {
 	@Nonbinding
 	MyConfigs value() default MyConfigs.FIRST_PROPERTY;
 }
 
 ```
-Which permits you to inject configuration in this way:
+It will also generate a `MyConfigsConfigurationBean` class, which will inject your `MyConfigsConfiguration` annotated configuration.
+
+You can use the generated code in this way:
 
 ```java
 
 package tests.logic;
 
 import javax.inject.Inject;
-import tests.Configuration; // this is generated
+import tests.MyConfigsConfiguration; // this is generated
 import tests.MyConfigs;
 
 public MyApplicationLogic {
 
 	@Inject 
-	@Configuration(MyConfigs.FIRST_PROPERTY)	
+	@MyConfigsConfiguration(MyConfigs.FIRST_PROPERTY)
 	String firstProperty;
 	
 	@Inject
-	@Configuration(MyConfigs.SECOND_PROPERTY)
+	@MyConfigsConfiguration(MyConfigs.SECOND_PROPERTY)
 	String secondProperty;
 
-	void myMethod(){
+	void myMethod() {
 		// use the property, Luke
 	}
 }
@@ -204,6 +227,18 @@ public class OuterSpaceConfigurationResolver implements ConfigurationResolver<My
 }
 ```
 
-And the generated `ConfigurationBean` will use that class (via CDI, so be sure it's inject-able) to resolve properties.
+And the generated `MyConfigsConfigurationBean` will use that class (via CDI, so be sure it's inject-able) to resolve properties.
 
-Be aware of the fact that you can't inject `MyConfigs` properties in your own resolver, since it would create a circular injection dependency. Use another method to configure your resolver (e.g. read properties from file, or from `System`).  
+Be aware of the fact that you can't inject `MyConfigs` properties in your own resolver, since it would create a circular injection dependency. Use another method to configure your resolver (e.g. read properties from file, or from `System`).
+
+## Suggested use
+
+We suggest to:
+
+- provide a validator and at least check for null values if you do not want them (by default we do not check)
+- if you build a custom resolver please implement the `getConfigurationKey` method and provide a textual description for when configuration values are invalid
+- pass at least `javax.enterprise.context.ApplicationScoped` annotation to the `ConfigurationBean` to avoid multiple validation of properties.
+
+## Contribute
+
+If you find a bug or want to discuss new features, please file an issue first ;)
