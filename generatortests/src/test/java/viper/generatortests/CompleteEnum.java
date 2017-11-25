@@ -19,8 +19,12 @@ import viper.PropertyFileResolver;
  * Character, Short, Integer, Long, Float, Double, Boolean. Take this feature
  * with care: we don't verify if the transformation from string is possible,
  * exceptions may be thrown.
+ * 
+ * You can also specify the name of the generated annotation and configuration
+ * bean. You can put a star symbol in it, and the processor will replace it with
+ * the enum name.
  */
-@CdiConfiguration(producersForPrimitives = true)
+@CdiConfiguration(producersForPrimitives = true, annotationName = "MyConfig", configurationBeanName = "*ConfInjector")
 /*
  * Generate a Properties-based file-sourced configuration resolver with the
  * given configuration file's path

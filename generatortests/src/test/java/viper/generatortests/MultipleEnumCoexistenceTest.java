@@ -101,8 +101,8 @@ public class MultipleEnumCoexistenceTest {
 					+ "and property file config resolver for "
 					+ enumClassName)
 			.contains(
-					enumClassName + "Configuration.java", // the annotation
-					enumClassName + "ConfigurationBean.java", // the injection
+					"MyConfig.java", // the annotation
+					enumClassName + "ConfInjector.java", // the injection bean
 					enumClassName + "PropertyFileConfigurationResolver.java" // the property file resolver
 				);
 	}

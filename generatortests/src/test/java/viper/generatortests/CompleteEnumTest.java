@@ -146,10 +146,10 @@ public class CompleteEnumTest {
 			.collect(toList());
 
 		assertThat(javaGeneratedFiles)
-			.as("Could generate annotation, configuration bean, and property file config resolver")
+			.as("Should generate annotation, configuration bean, and property file config resolver")
 			.contains(
-					enumClassName + "Configuration.java", // the annotation
-					enumClassName + "ConfigurationBean.java", // the injection
+					"MyConfig.java", // the annotation
+					enumClassName + "ConfInjector.java", // the injection bean
 					enumClassName + "PropertyFileConfigurationResolver.java" // the property file resolver
 				);
 		annotationProcessorHasRunSuccessfully = true;
@@ -159,7 +159,7 @@ public class CompleteEnumTest {
 	@Test
 	public void shouldGenerateConfigurationBeanClass() throws Exception {
 		assumingAnnotationProcessorHasRun();
-		String className = packageName + "." + enumClassName + "ConfigurationBean";
+		String className = packageName + "." + enumClassName + "ConfInjector";
 		Class<?> confBeanClass = tryLoadClassFromCompiledFiles(className).orElse(null);
 		assertThat(confBeanClass)
 			.isNotNull()
@@ -191,8 +191,8 @@ public class CompleteEnumTest {
 	public void shouldGenerateAllProducerMethodsForConfigurationBean() throws Exception {
 		assumingAnnotationProcessorHasRun();
 		
-		String beanClassName = packageName + "." + enumClassName + "ConfigurationBean";
-		String annotationClassName = packageName + "." + enumClassName + "Configuration";
+		String beanClassName = packageName + "." + enumClassName + "ConfInjector";
+		String annotationClassName = packageName + ".MyConfig";
 
 		Optional<Class<?>> beanClass = tryLoadClassFromCompiledFiles(beanClassName);
 		Optional<Class<? extends Annotation>> annotationClass = tryLoadClassFromCompiledFiles(annotationClassName);
@@ -226,7 +226,7 @@ public class CompleteEnumTest {
 	@Test
 	public void shouldGenerateConfigurationAnnotation() throws Exception {
 		assumingAnnotationProcessorHasRun();
-		String className = packageName + "." + enumClassName + "Configuration";
+		String className = packageName + "." + "MyConfig";
 		Class<?> confBeanClass = tryLoadClassFromCompiledFiles(className).orElse(null);
 		assertThat(confBeanClass)
 			.isAnnotation()
@@ -275,7 +275,7 @@ public class CompleteEnumTest {
 	@Test
 	public void shouldAddGeneratedAnnotationToGeneratedSourceCode_configurationBean() throws Exception {
 		assumingAnnotationProcessorHasRun();
-		File generatedConfigurationBean = findFileInGeneratedSources(enumClassName + "ConfigurationBean.java");
+		File generatedConfigurationBean = findFileInGeneratedSources(enumClassName + "ConfInjector.java");
 		CompilationUnit compilationUnit = JavaParser.parse(generatedConfigurationBean);
 		TypeDeclaration typeDeclaration = compilationUnit.getTypes().get(0);
 
@@ -286,7 +286,7 @@ public class CompleteEnumTest {
 	@Test
 	public void shouldAddGeneratedAnnotationToGeneratedSourceCode_configurationAnnotation() throws Exception {
 		assumingAnnotationProcessorHasRun();
-		File generatedConfigurationBean = findFileInGeneratedSources(enumClassName + "Configuration.java");
+		File generatedConfigurationBean = findFileInGeneratedSources("MyConfig.java");
 		CompilationUnit compilationUnit = JavaParser.parse(generatedConfigurationBean);
 		TypeDeclaration typeDeclaration = compilationUnit.getTypes().get(0);
 

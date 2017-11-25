@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -48,6 +49,8 @@ import com.google.common.collect.Sets;
 @SupportedAnnotationTypes({ "viper.CdiConfiguration", "viper.PropertyFileResolver" })
 public class ConfigurationKeyProcessor extends AbstractProcessor {
 
+	private static final Pattern NAME_PATTERNS = Pattern.compile("^(\\*?[a-zA-Z]+|[a-zA-Z]+\\*?|[a-zA-Z]+\\*?[a-zA-Z]+)$");
+
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -77,8 +80,13 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					// properties for cdi configuration 
 					final String className = classElement.getSimpleName().toString();
 					note(e, String.format("Class prefix for generated classes will be \"%s\"", className));
-					boolean producersForPrimitives = classElement.getAnnotation(CdiConfiguration.class).producersForPrimitives();
+					final CdiConfiguration annotation = classElement.getAnnotation(CdiConfiguration.class);
+					boolean producersForPrimitives = annotation.producersForPrimitives();
 					note(e, "Will " + (producersForPrimitives? "" : "not ") + "generate producers for primitive types");
+					String annotationName = calculateAnnotationName(className, annotation.annotationName());
+					note(e, "Annotation will be named " + annotationName);
+					String configurationBeanName = calculateConfigurationBeanName(className, annotation.configurationBeanName());
+					note(e, "Configuration bean will be named " + configurationBeanName);
 					List<String> passedAnnotations = getPassedAnnotations(classElement);
 					note(e, "Generated configuration producer's class will have the following annotations: " + passedAnnotations);
 					String packageName = packageElement.getQualifiedName().toString();
@@ -89,7 +97,9 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						.put("enumClass", className)
 						.put("packageName", packageName)
 						.put("passedAnnotations", passedAnnotations)
-						.put("producersForPrimitives", producersForPrimitives);
+						.put("producersForPrimitives", producersForPrimitives)
+						.put("annotationName", annotationName)
+						.put("configurationBeanName", configurationBeanName);
 					
 					getValidatorMethod(classElement).ifPresent(method -> {
 						note(e, String.format("Properties will be validated via predicates from the %s method in the enum", method));
@@ -114,11 +124,11 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 					ImmutableMap<String, Object> props = builder.build();
 					
 					// generate cdi configuration
-					String configurationAnnotationClassName = packageName + "." + className + "Configuration";
+					String configurationAnnotationClassName = packageName + "." + annotationName;
 					note(e, "Generating configuration annotation: " + configurationAnnotationClassName);
 					generateSourceFileFromTemplate(e, configurationAnnotationClassName, "Configuration.vm", props);
 
-					String configurationBeanClassName = packageName + "." + className + "ConfigurationBean";
+					String configurationBeanClassName = packageName + "." + configurationBeanName;
 					note(e, "Generating configuration producer: " + configurationAnnotationClassName);
 					generateSourceFileFromTemplate(e,configurationBeanClassName, "ConfigurationBean.vm",props);
 
@@ -128,14 +138,36 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						note(e, "Generating property file based configuration resolver: " + configurationResolverClassName);
 						generateSourceFileFromTemplate(e, configurationResolverClassName, "ConfigurationResolver.vm", props);
 					}
+				} catch(IllegalArgumentException iae){
+					error(e, "Invalid paramters: "+ iae.getMessage());
 				} catch (IOException e1) {
-					processingEnv.getMessager().printMessage(Kind.ERROR, "Error creating files: " + Throwables.getStackTraceAsString(e1), e);
+					error(e, "Error creating files: " + Throwables.getStackTraceAsString(e1));
 				}
 			} else {
-				processingEnv.getMessager().printMessage(Kind.ERROR, "Code generation is supported only on enum types", e);
+				error(e, "Code generation is supported only on enum types");
 			}
 		}
 		return true;
+	}
+
+	static String calculateConfigurationBeanName(String className, String configurationBeanName) {
+		if (className == null) {
+			throw new IllegalArgumentException("Invalid class name");
+		}
+		if (configurationBeanName == null || !NAME_PATTERNS.matcher(configurationBeanName).matches()) {
+			throw new IllegalArgumentException("Invalid configurationBeanName pattern");
+		}
+		return configurationBeanName.replace("*", className);
+	}
+
+	static String calculateAnnotationName(String className, String annotationName) {
+		if (className == null) {
+			throw new IllegalArgumentException("Invalid class name");
+		}
+		if (annotationName == null || !NAME_PATTERNS.matcher(annotationName).matches()) {
+			throw new IllegalArgumentException("Invalid annotationName pattern");
+		}
+		return annotationName.replace("*", className);
 	}
 
 	private void generateSourceFileFromTemplate(Element element, String generatedClassName, String templateName, ImmutableMap<String, Object> templateProperties) throws IOException {
@@ -156,6 +188,16 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 	private void note(Element element, String message) {
 		// passing the element to printMessage would display the annotated code at each log, which is not what we wanted
 		processingEnv.getMessager().printMessage(Kind.NOTE, String.format("%s: %s", element.getSimpleName(), message));
+	}
+
+	/**
+	 * Prints an error prepending the current element name
+	 * @param element the current element.
+	 * @param message the message.
+	 */
+	private void error(Element element, String message) {
+		// passing the element to printMessage would display the annotated code at each log, which is not what we wanted
+		processingEnv.getMessager().printMessage(Kind.ERROR, message, element);
 	}
 
 	private String getFirstEnumConstant(TypeElement classElement) {
