@@ -56,6 +56,22 @@ public @interface CdiConfiguration {
 	boolean producersForPrimitives() default false;
 
 	/**
+	 * Determine the generated annotation name. Defaults to
+	 * <code>*Configuration</code> which generates an annotation name like
+	 * <code>{EnumName}Configuration</code>. If you omit the star symbol, it
+	 * will create an annotation with the given name.
+	 */
+	String annotationName() default "*Configuration";
+
+	/**
+	 * Determine the generated configuration bean name. Defaults to
+	 * <code>*ConfigurationBean</code> which generates a configuration bean name
+	 * as <code>{EnumName}ConfigurationBean</code>. If you omit the star symbol,
+	 * it will create an annotation with the given name.
+	 */
+	String configurationBeanName() default "*ConfigurationBean";
+
+	/**
 	 * Specifies an enum constant to be used as the default constant. This will
 	 * be used to construct the qualifier annotation.
 	 */
