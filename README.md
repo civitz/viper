@@ -64,7 +64,7 @@ You can also skip the generator dependency if you use `maven-compiler-plugin` ve
 </plugin>
 ```
 
-Be also sure to have the java EE spec as dependency.
+Be also sure to have the [Contexts and Dependency Injection for Java EE (CDI)](http://cdi-spec.org/) API as a dependency.
 
 Then annotate the enum of your configuration keys as follows:
 
