@@ -46,6 +46,24 @@ Import library and generators in maven:
 
 ```
 
+You can also skip the generator dependency if you use `maven-compiler-plugin` version 3.5+ by using this plugin configuration:
+```xml
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<configuration>
+		<useIncrementalCompilation>false</useIncrementalCompilation>
+		<annotationProcessorPaths>
+			<annotationProcessorPath>
+				<groupId>com.github.civitz.viper</groupId>
+				<artifactId>generator</artifactId>
+				<version>0.2.0</version>
+			</annotationProcessorPath>
+		</annotationProcessorPaths>
+	</configuration>
+</plugin>
+```
+
 Be also sure to have the java EE spec as dependency.
 
 Then annotate the enum of your configuration keys as follows:
