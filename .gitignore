@@ -75,3 +75,4 @@ buildNumber.properties
 .mvn/timing.properties
 *.iml
 .idea
+/cditests/EnumWithPropertiesFile.properties
