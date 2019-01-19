@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import javax.enterprise.inject.Instance;
@@ -13,6 +14,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,8 @@ public class EnumWithPropertiesFileTest {
   @Inject
   @EnumWithPropertiesFileConfiguration(EnumWithPropertiesFile.AGE)
   Instance<String> age;
+
+  static Path propertiesPath;
 
   @BeforeClass
   public static void setUp() throws Exception{
@@ -51,7 +55,14 @@ public class EnumWithPropertiesFileTest {
     Properties properties = new Properties();
     properties.setProperty(EnumWithPropertiesFile.NAME.name().toLowerCase(), EXPECTED_NAME);
     properties.setProperty(EnumWithPropertiesFile.AGE.name().toLowerCase(), EXPECTED_AGE);
-    properties.store(Files.newOutputStream(Paths.get(propertyFilePath)), null);
+    propertiesPath = Paths.get(propertyFilePath);
+    Files.deleteIfExists(propertiesPath);
+    properties.store(Files.newOutputStream(propertiesPath), null);
+  }
+
+  @AfterClass
+  public static void cleanup() throws Exception {
+	  Files.deleteIfExists(propertiesPath);
   }
 
   @Test
