@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -50,11 +49,6 @@ import com.google.common.collect.Sets;
 public class ConfigurationKeyProcessor extends AbstractProcessor {
 
 	private static final Pattern NAME_PATTERNS = Pattern.compile("^(\\*?[a-zA-Z]+|[a-zA-Z]+\\*?|[a-zA-Z]+\\*?[a-zA-Z]+)$");
-
-	@Override
-	public synchronized void init(ProcessingEnvironment processingEnv) {
-		super.init(processingEnv);
-	}
 
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
@@ -171,7 +165,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 	}
 
 	private void generateSourceFileFromTemplate(Element element, String generatedClassName, String templateName, ImmutableMap<String, Object> templateProperties) throws IOException {
-		Template config = generateTemplateFor(templateName, templateProperties);
+		Template config = generateTemplateFor(templateName);
 		JavaFileObject configSourceFile = processingEnv.getFiler()
                 .createSourceFile(generatedClassName, element);
 		Writer configWriter = configSourceFile.openWriter();
@@ -265,7 +259,7 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 			.collect(toList());
 	}
 	
-	Template generateTemplateFor(String templateName, Map<String, Object> properties) throws IOException {
+	Template generateTemplateFor(String templateName) throws IOException {
 		Properties props = new Properties();
 		URL url = this.getClass().getClassLoader().getResource("velocity.properties");
 		props.load(url.openStream());

@@ -35,5 +35,5 @@ public interface ConfigurationResolver<E extends Enum<E>> {
 	 */
 	default String getConfigurationKey(E key) {
 		return key.name();
-	};
+	}
 }

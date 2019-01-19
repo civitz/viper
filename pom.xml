@@ -33,18 +33,38 @@
 		<module>generator</module>
 		<module>library</module>
 		<module>generatortests</module>
+		<module>cditests</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+		<arquillian.version>1.4.0.Final</arquillian.version>
+		<tomee.version>1.7.1</tomee.version>
 		<junit.version>4.12</junit.version>
 		<guava.version>21.0</guava.version>
+		<velocity.version>1.7</velocity.version>
 		<assertj.version>3.5.2</assertj.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.jboss.arquillian.junit</groupId>
+				<artifactId>arquillian-junit-container</artifactId>
+				<version>${arquillian.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.openejb</groupId>
+				<artifactId>arquillian-tomee-embedded</artifactId>
+				<version>${tomee.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.openejb</groupId>
+				<artifactId>tomee-embedded</artifactId>
+				<version>${tomee.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -59,7 +79,7 @@
 			<dependency>
 				<groupId>org.apache.velocity</groupId>
 				<artifactId>velocity</artifactId>
-				<version>1.7</version>
+				<version>${velocity.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.assertj</groupId>
