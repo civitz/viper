@@ -21,7 +21,17 @@ public class ${enumClass}PropertyFileConfigurationResolver implements Configurat
 	void init() {
 		properties = getAvailableProperties(PROPERTIES_PATH);
 	}
-	
+
+	public static ${enumClass}PropertyFileConfigurationResolver create(String propertiesPath) {
+		${enumClass}PropertyFileConfigurationResolver instance = new ${enumClass}PropertyFileConfigurationResolver();
+		instance.properties = getAvailableProperties(propertiesPath);
+		return instance;
+	}
+
+	public static ${enumClass}PropertyFileConfigurationResolver create() {
+		return create(PROPERTIES_PATH);
+	}
+
 	@Override
 	public String getConfigurationValue(${enumClass} key) {
 		return properties.getProperty(enumToKeyString(key));

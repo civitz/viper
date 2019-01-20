@@ -20,9 +20,9 @@ import viper.ConfigurationResolver;
 public class ${configurationBeanName} {
 
 	@Inject
-	ConfigurationResolver<${enumClass}> resolver;
-
+	private ConfigurationResolver<${enumClass}> resolver;
 #if ( $validator )
+
 	@PostConstruct
 	void validateProperties() {
 		ArrayList<String> invalid= new ArrayList<>();
@@ -48,6 +48,15 @@ public class ${configurationBeanName} {
 	}
 #end
 
+	public static ${configurationBeanName} create(ConfigurationResolver<${enumClass}> resolver) {
+		${configurationBeanName} instance = new ${configurationBeanName}();
+		instance.resolver = resolver;
+#if ( $validator )
+		instance.validateProperties();
+#end
+		return instance;
+	}
+
 	public String getProperty(${enumClass} keyEnum) {
 		return resolver.getConfigurationValue(keyEnum);
 	}
@@ -63,22 +72,31 @@ public class ${configurationBeanName} {
 		${enumClass} keyEnum = getEnumFromInjectionPoint(ip);
 		return getProperty(keyEnum);
 	}
-
 #if ( $producersForPrimitives )
 #foreach ($type in ["Byte", "Short", "Integer", "Long", "Float", "Double", "Boolean"])
+	public ${type} get${type}Property(${enumClass} keyEnum) {
+		String stringProperty = getProperty(keyEnum);
+		return ${type}.valueOf(stringProperty);
+	}
+
 	@Produces
 	@${annotationName}
 	private ${type} get${type}Property(InjectionPoint ip) {
-		String stringProperty = getStringProperty(ip);
-		return ${type}.valueOf(stringProperty);
+		${enumClass} keyEnum = getEnumFromInjectionPoint(ip);
+		return get${type}Property(keyEnum);
 	}
 #end
-	
+
+	public Character getCharacterProperty(${enumClass} keyEnum) {
+		String stringProperty = getProperty(keyEnum);
+		return stringProperty.charAt(0);
+	}
+
 	@Produces
 	@${annotationName}
 	private Character getCharacterProperty(InjectionPoint ip) {
-		String stringProperty = getStringProperty(ip);
-		return stringProperty.charAt(0);
+		${enumClass} keyEnum = getEnumFromInjectionPoint(ip);
+		return getCharacterProperty(keyEnum);
 	}
 #end
 }
