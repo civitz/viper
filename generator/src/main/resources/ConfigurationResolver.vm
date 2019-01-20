@@ -14,12 +14,21 @@ import viper.ConfigurationResolver;
 public class ${enumClass}PropertyFileConfigurationResolver implements ConfigurationResolver<${enumClass}> {
 
 	private static final String PROPERTIES_PATH = "${propertiesPath}";
+	private static final String PROPERTIES_PATH_SYSTEM_VARIABLE = "${systemPropertyName}";
 
 	Properties properties = new Properties();
 
 	@PostConstruct
 	void init() {
-		properties = getAvailableProperties(PROPERTIES_PATH);
+		properties = getAvailableProperties(getPropertiesPath());
+	}
+
+	private static String getPropertiesPath() {
+		String pathFromEnv = System.getProperty(PROPERTIES_PATH_SYSTEM_VARIABLE);
+		if (pathFromEnv != null && !pathFromEnv.isEmpty()) {
+			return pathFromEnv;
+		}
+		return PROPERTIES_PATH;
 	}
 
 	public static ${enumClass}PropertyFileConfigurationResolver create(String propertiesPath) {
