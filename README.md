@@ -83,6 +83,7 @@ public enum MyConfigs {
 ```
 
 Viper will generate a `MyConfigsPropertyFileConfigurationResolver` class, which will read properties from the specified path: by default it will assume your properties are `Properties`-compatible, and use `key.name().toLowerCase()` as key.
+You can also override the path via system property. The default is `{Enum name}ConfigPath`, or `MyConfigsConfigPath` here.
 
 It will create a `MyConfigsConfiguration` qualifier annotation, in this form:
 ```java
@@ -156,9 +157,11 @@ import viper.PropertyFileResolver;
 @CdiConfiguration(producersForPrimitives = true, annotationName = "MyConfig", configurationBeanName = "*ConfInjector")
 /*
  * Generate a Properties-based file-sourced configuration resolver with the
- * given configuration file's path
+ * given configuration file's path. You can override the path via a
+ * custom system property. The default is <code>{Enum name}ConfigPath</code>
+ * but here we use a custom variable named <code>my_config_path</code>.
  */
-@PropertyFileResolver(propertiesPath = "/tmp/viper/my.config")
+@PropertyFileResolver(propertiesPath = "/tmp/viper/my.config", systemPropertyName="my_config_path")
 public enum CompleteEnum {
 
 	FIRST_PROPERTY("my.particular.key", s -> Ints.tryParse(s) != null),

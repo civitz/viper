@@ -46,6 +46,8 @@ public class EnumWithPropertiesFileTest {
      *  + generate a deployable jar with shrinkwrap
      *  + make sure there is a valid property file in the path
      *  + finally run the test
+     *  
+     * This is complimentary to EnumWithPropertiesFileSyspropTest.
      */
     Field field = EnumWithPropertiesFilePropertyFileConfigurationResolver.class.getDeclaredField(
         "PROPERTIES_PATH");

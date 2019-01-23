@@ -13,11 +13,25 @@ import java.lang.annotation.Target;
  * <p>
  * By default it uses <code>enumConstant.name().toLowerCase()</code> as a
  * property key.
+ * <p>
+ * Alternative paths can be specified at run time by passing a system property
+ * with -Dproperty=path. Property name can be customized with
+ * {@link #systemPropertyName()}, the default is  <code>{enum class}ConfigPath</code>
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface PropertyFileResolver {
+
+	/**
+	 * The path where the properties are stored.
+	 */
 	String propertiesPath();
+
+	/**
+	 * Set the system property name for alternative property path. Use `*` to
+	 * automatically place the enum class name.
+	 */
+	String systemPropertyName() default "*ConfigPath";
 
 	/**
 	 * Specifies a method to obtain the key in place of

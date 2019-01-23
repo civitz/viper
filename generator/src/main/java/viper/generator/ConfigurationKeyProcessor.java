@@ -100,11 +100,18 @@ public class ConfigurationKeyProcessor extends AbstractProcessor {
 						builder.put("validator", method);
 					});
 					
-					Optional<String> propertyFileResolver = Optional.ofNullable(classElement.getAnnotation(PropertyFileResolver.class))
+					Optional<PropertyFileResolver> optionalPropertyFileResolver = Optional.ofNullable(classElement.getAnnotation(PropertyFileResolver.class));
+					Optional<String> propertyFileResolver = optionalPropertyFileResolver
 							.map(PropertyFileResolver::propertiesPath);
 					propertyFileResolver.ifPresent(path -> {
-						note(e, "A property-file based ConfigurationResolver will be generated, reading properties from " + path);
-						builder.put("propertiesPath", path);
+						String systemPropertyName = optionalPropertyFileResolver
+								.map(PropertyFileResolver::systemPropertyName)
+								.map(prop -> prop.replace("*", className))
+								.orElse(className + "ConfigPath");
+						note(e, "A property-file based ConfigurationResolver will be generated, reading properties from "
+								+ path + " and customizable from system property " + systemPropertyName);
+						builder.put("propertiesPath", path)
+							.put("systemPropertyName", systemPropertyName);
 					});
 					getKeyStringMethod(classElement).ifPresent(method -> {
 						note(e, "The key string for properties will be the one from the " + method + " method in the enum");
