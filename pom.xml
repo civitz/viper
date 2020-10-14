@@ -41,7 +41,7 @@
 		<java.version>1.8</java.version>
 		<arquillian.version>1.4.0.Final</arquillian.version>
 		<tomee.version>1.7.1</tomee.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<guava.version>21.0</guava.version>
 		<velocity.version>1.7</velocity.version>
 		<assertj.version>3.5.2</assertj.version>
