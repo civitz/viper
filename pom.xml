@@ -42,7 +42,7 @@
 		<arquillian.version>1.4.0.Final</arquillian.version>
 		<tomee.version>1.7.1</tomee.version>
 		<junit.version>4.13.1</junit.version>
-		<guava.version>29.0-jre</guava.version><!--CVE-2018-10237 -->
+		<guava.version>32.0.0-jre</guava.version><!--CVE-2018-10237 -->
 		<velocity.version>1.7</velocity.version>
 		<assertj.version>3.5.2</assertj.version>
 	</properties>
